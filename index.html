@@ -6,6 +6,14 @@
   <meta name="theme-color" content="#6366f1">
   <title>WebPOS - Dashboard</title>
 
+  <!-- ⭐ TARUH SCRIPT DI SINI (Sebelum Service Worker & CSS) ⭐ -->
+  <script>
+    // Mengalihkan langsung ke login.html tanpa menunggu Cordova
+    if (window.location.pathname.endsWith("index.html") || window.location.pathname.endsWith("/")) {
+      window.location.href = "login.html";
+    }
+  </script>
+
   <link rel="manifest" href="./manifest.json">
   <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')</script>
 
