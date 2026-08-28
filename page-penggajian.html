@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light" data-theme-color="indigo">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#6366f1">
+  <title>WebPOS - Penggajian Karyawan</title>
+
+  <link rel="manifest" href="./manifest.json">
+  <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js')</script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Inline CSS (IDENTIK DENGAN DASHBOARD) -->
+  <style>
+/* ============================================
+   WEBPOS MODERN CSS - BASE (identik dashboard)
+   ============================================ */
+
+/* Theme Colors */
+:root{--primary:#6366f1;--primary-dark:#4f46e5;--secondary:#ec4899;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#3b82f6}
+[data-theme-color="blue"]{--primary:#3b82f6;--primary-dark:#2563eb;--secondary:#06b6d4}
+[data-theme-color="green"]{--primary:#10b981;--primary-dark:#059669;--secondary:#84cc16}
+[data-theme-color="orange"]{--primary:#f97316;--primary-dark:#ea580c;--secondary:#f59e0b}
+[data-theme-color="purple"]{--primary:#8b5cf6;--primary-dark:#7c3aed;--secondary:#d946ef}
+[data-theme-color="red"]{--primary:#ef4444;--primary-dark:#dc2626;--secondary:#f97316}
+[data-theme-color="pink"]{--primary:#ec4899;--primary-dark:#db2777;--secondary:#8b5cf6}
+[data-theme-color="teal"]{--primary:#14b8a6;--primary-dark:#0d9488;--secondary:#06b6d4}
+
+/* Base */
+:root{--bg-primary:#f8fafc;--bg-secondary:#f1f5f9;--bg-card:#fff;--text-primary:#0f172a;--text-secondary:#475569;--text-muted:#94a3b8;--border-color:#e2e8f0;--shadow-sm:0 1px 2px rgba(0,0,0,0.05);--shadow-md:0 4px 6px rgba(0,0,0,0.1);--shadow-lg:0 10px 15px rgba(0,0,0,0.1);--shadow-xl:0 20px 25px rgba(0,0,0,0.15);--radius-sm:0.375rem;--radius-md:0.5rem;--radius-lg:0.75rem;--radius-xl:1rem;--sidebar-width:280px;--sidebar-collapsed:76px;--header-height:70px;--bottom-nav-height:70px}
+
+[data-theme="dark"]{--bg-primary:#0f172a;--bg-secondary:#1e293b;--bg-card:#1e293b;--text-primary:#f8fafc;--text-secondary:#cbd5e1;--text-muted:#64748b;--border-color:#334155}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:16px;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif}
+body{background:var(--bg-primary);color:var(--text-primary);line-height:1.6;min-height:100vh}
+
+::-webkit-scrollbar{width:8px}
+::-webkit-scrollbar-track{background:var(--bg-secondary)}
+::-webkit-scrollbar-thumb{background:var(--text-muted);border-radius:9999px}
+
+.app-container{display:flex;min-height:100vh}
+
+/* Sidebar */
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;background:var(--bg-card);border-right:1px solid var(--border-color);z-index:1000;display:flex;flex-direction:column;transition:all .25s}
+.sidebar.collapsed{width:var(--sidebar-collapsed)}
+@media(max-width:1024px){.sidebar{transform:translateX(-100%)}.sidebar.mobile-open{transform:translateX(0)}}
+
+.sidebar-header{padding:1.25rem;border-bottom:1px solid var(--border-color);display:flex;align-items:center;gap:1rem;min-height:var(--header-height)}
+.logo-container{display:flex;align-items:center;gap:.5rem}
+.logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:.75rem;display:flex;align-items:center;justify-content:center;color:white;font-weight:bold;font-size:1.25rem}
+.logo-text{font-size:1.35rem;font-weight:800;background:linear-gradient(135deg,var(--primary),var(--secondary));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sidebar.collapsed .logo-text{opacity:0;width:0}
+
+.menu-toggle{position:absolute;right:-14px;top:24px;width:28px;height:28px;background:var(--primary);border:none;border-radius:50%;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1001;font-size:.75rem}
+.menu-toggle:hover{background:var(--primary-dark)}
+.sidebar.collapsed .menu-toggle{transform:rotate(180deg)}
+
+.sidebar-search{padding:1rem;border-bottom:1px solid var(--border-color)}
+.search-input-wrapper{position:relative;display:flex;align-items:center}
+.search-input-wrapper i{position:absolute;left:1rem;color:var(--text-muted);font-size:.875rem}
+.search-input{width:100%;padding:.5rem 1rem .5rem 2.5rem;border:1px solid var(--border-color);border-radius:.75rem;background:var(--bg-secondary);color:var(--text-primary);font-size:.875rem}
+.search-input:focus{outline:none;border-color:var(--primary)}
+
+.sidebar-nav{flex:1;overflow-y:auto;padding:1rem}
+.nav-section{margin-bottom:1.5rem}
+.nav-section-title{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);padding:.5rem 1rem;margin-bottom:.25rem}
+.sidebar.collapsed .nav-section-title{display:none}
+
+.nav-menu{list-style:none}
+.nav-item{margin-bottom:2px}
+.nav-link{display:flex;align-items:center;gap:1rem;padding:.625rem 1rem;border-radius:.75rem;color:var(--text-secondary);text-decoration:none;font-size:.9rem;font-weight:500;transition:all .15s;position:relative}
+.nav-link::before{content:'';position:absolute;left:0;top:0;height:100%;width:3px;background:var(--primary);transform:scaleY(0);transition:transform .15s;border-radius:0 .25rem .25rem 0}
+.nav-link:hover{background:rgba(99,102,241,.05);color:var(--primary)}
+.nav-link.active{background:rgba(99,102,241,.1);color:var(--primary);font-weight:600}
+.nav-link.active::before{transform:scaleY(1)}
+.nav-link i{width:22px;text-align:center;font-size:1.05rem}
+.nav-link span{white-space:nowrap}
+.sidebar.collapsed .nav-link span{display:none}
+
+.nav-dropdown{position:relative}
+.nav-dropdown-toggle{justify-content:space-between}
+.nav-dropdown-toggle .dropdown-arrow{transition:transform .2s;font-size:.75rem;margin-left:auto}
+.nav-dropdown.open .nav-dropdown-toggle .dropdown-arrow{transform:rotate(180deg)}
+.nav-submenu{list-style:none;padding-left:2.75rem;max-height:0;overflow:hidden;transition:max-height .25s}
+.sidebar.collapsed .nav-submenu{display:none}
+.nav-dropdown.open .nav-submenu{max-height:500px}
+.nav-submenu .nav-link{padding:.5rem 1rem;font-size:.85rem}
+
+.sidebar-footer{padding:1rem;border-top:1px solid var(--border-color);background:var(--bg-card)}
+.user-profile{display:flex;align-items:center;gap:1rem;cursor:pointer}
+.user-profile:hover{opacity:.8}
+.user-avatar{width:40px;height:40px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:600;font-size:.875rem}
+.user-info{flex:1;overflow:hidden}
+.sidebar.collapsed .user-info{display:none}
+.user-name{font-weight:600;font-size:.9rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:.75rem;color:var(--text-muted);text-transform:capitalize}
+
+/* Main Content */
+.main-content{flex:1;margin-left:var(--sidebar-width);min-height:100vh;display:flex;flex-direction:column;transition:margin-left .25s}
+.sidebar.collapsed~.main-content{margin-left:var(--sidebar-collapsed)}
+@media(max-width:1024px){.main-content{margin-left:0}.sidebar.collapsed~.main-content{margin-left:0}}
+
+/* Header */
+.main-header{height:var(--header-height);background:var(--bg-card);border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:100}
+.header-left{display:flex;align-items:center;gap:1rem}
+.header-title{font-size:1.35rem;font-weight:700;color:var(--text-primary)}
+.header-actions{display:flex;align-items:center;gap:.5rem}
+
+/* Header Stats */
+.header-stats{display:flex;align-items:center;gap:2rem}
+.header-stats .stat-item{display:flex;flex-direction:column;align-items:flex-start}
+.header-stats .stat-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)}
+.header-stats .stat-value{font-size:1rem;font-weight:700;color:var(--text-primary)}
+.header-stats .stat-value.positive{color:var(--success)}
+.header-stats .stat-value.negative{color:var(--danger)}
+@media(max-width:768px){.header-stats{display:none}}
+
+/* Status Indicator */
+.status-indicator{display:flex;align-items:center;gap:.5rem;padding:.375rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:600;background:var(--bg-secondary)}
+.status-indicator .status-dot{width:8px;height:8px;border-radius:50%}
+.status-indicator.open{background:rgba(16,185,129,.1);color:var(--success)}
+.status-indicator.open .status-dot{background:var(--success)}
+.status-indicator.closed{background:rgba(239,68,68,.1);color:var(--danger)}
+.status-indicator.closed .status-dot{background:var(--danger)}
+
+/* Page Content */
+.page-content{flex:1;padding:1.5rem;overflow-y:auto}
+@media(max-width:768px){.page-content{padding:1rem;padding-bottom:calc(var(--bottom-nav-height) + 1rem)}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.625rem 1.25rem;border-radius:.75rem;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .15s;border:none;outline:none;white-space:nowrap}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-primary{background:var(--primary);color:white}
+.btn-primary:hover:not(:disabled){background:var(--primary-dark);transform:translateY(-2px)}
+.btn-success{background:var(--success);color:white}
+.btn-success:hover:not(:disabled){filter:brightness(0.9)}
+.btn-danger{background:var(--danger);color:white}
+.btn-danger:hover:not(:disabled){filter:brightness(0.9)}
+.btn-warning{background:var(--warning);color:white}
+.btn-outline{background:transparent;border:1.5px solid var(--border-color);color:var(--text-secondary)}
+.btn-outline:hover:not(:disabled){border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:.4rem .875rem;font-size:.8rem}
+.btn-block{width:100%}
+
+.btn-icon{width:40px;height:40px;padding:0;border-radius:.75rem;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.btn-icon:hover{background:rgba(99,102,241,.05);color:var(--primary);border-color:var(--primary)}
+
+/* Cards */
+.card{background:var(--bg-card);border-radius:1rem;border:1px solid var(--border-color);overflow:hidden;transition:all .25s}
+.card:hover{box-shadow:var(--shadow-lg)}
+.card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;gap:1rem}
+.card-title{font-size:1.1rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:.5rem}
+.card-body{padding:1.5rem}
+.card-footer{padding:1rem 1.5rem;border-top:1px solid var(--border-color);background:var(--bg-secondary)}
+
+/* Forms */
+.form-group{margin-bottom:1.25rem}
+.form-label{display:block;font-size:.875rem;font-weight:500;color:var(--text-secondary);margin-bottom:.5rem}
+.form-input,.form-select,.form-textarea{width:100%;padding:.75rem 1rem;border:1.5px solid var(--border-color);border-radius:.75rem;background:var(--bg-secondary);color:var(--text-primary);font-size:.95rem;transition:all .15s;font-family:inherit}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+.form-input::placeholder{color:var(--text-muted)}
+.form-textarea{min-height:100px;resize:vertical}
+.form-select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem}
+
+/* Tables */
+.table-container{overflow-x:auto;border-radius:1rem;border:1px solid var(--border-color)}
+.table{width:100%;border-collapse:collapse;font-size:.9rem}
+.table th,.table td{padding:.875rem 1rem;text-align:left;border-bottom:1px solid var(--border-color)}
+.table th{font-weight:600;color:var(--text-secondary);background:var(--bg-secondary);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+.table tbody tr:hover{background:rgba(99,102,241,.05)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;gap:.25rem;padding:.35rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:600}
+.badge-primary{background:rgba(99,102,241,.1);color:var(--primary)}
+.badge-success{background:rgba(16,185,129,.1);color:var(--success)}
+.badge-warning{background:rgba(245,158,11,.1);color:var(--warning)}
+.badge-danger{background:rgba(239,68,68,.1);color:var(--danger)}
+
+/* Toast */
+.toast-container{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;max-width:400px}
+.toast{display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;background:var(--bg-card);border-radius:.75rem;box-shadow:var(--shadow-lg);border-left:4px solid;animation:slideIn .3s ease}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.success{border-left-color:var(--success)}
+.toast.error{border-left-color:var(--danger)}
+.toast.warning{border-left-color:var(--warning)}
+.toast.info{border-left-color:var(--info)}
+
+/* Loading */
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;opacity:0;visibility:hidden;transition:all .25s}
+.loading-overlay.active{opacity:1;visibility:visible}
+.spinner{width:48px;height:48px;border:4px solid var(--border-color);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Mobile Nav */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav-height);background:var(--bg-card);border-top:1px solid var(--border-color);z-index:999;padding:0 1rem}
+.mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;color:var(--text-muted);text-decoration:none;font-size:.7rem;font-weight:500;transition:all .15s;padding:.5rem}
+.mobile-nav-item i{font-size:1.25rem}
+.mobile-nav-item.active,.mobile-nav-item:hover{color:var(--primary)}
+@media(max-width:768px){.mobile-nav{display:flex}.page-content{padding-bottom:calc(var(--bottom-nav-height) + 1rem)}}
+
+/* Modal */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;visibility:hidden;transition:all .25s;padding:1rem}
+.modal-overlay.active{opacity:1;visibility:visible}
+.modal-content{background:var(--bg-card);border-radius:1.5rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);transform:scale(.9) translateY(20px);transition:all .25s}
+.modal-overlay.active .modal-content{transform:scale(1) translateY(0)}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:1.25rem;font-weight:700;color:var(--text-primary)}
+.modal-close{width:36px;height:36px;border:none;border-radius:.75rem;background:var(--bg-secondary);color:var(--text-muted);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.modal-close:hover{background:var(--danger);color:white}
+.modal-body{padding:1.5rem}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border-color);display:flex;gap:.75rem;justify-content:flex-end}
+
+    /* Daftar hutang di modal gaji */
+.hutang-item-row{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:8px;margin-bottom:.25rem;background:var(--bg-card);border:1px solid var(--border-color);cursor:pointer;transition:all .2s}
+.hutang-item-row:hover{border-color:var(--primary);background:rgba(5,150,105,.06)}
+.hutang-item-row input[type="checkbox"]{width:18px;height:18px;accent-color:var(--primary);cursor:pointer;flex-shrink:0}
+.hutang-item-info{flex:1;min-width:0}
+.hutang-item-info div:first-child{font-weight:600;font-size:.82rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hutang-item-info div:last-child{font-size:.72rem;color:var(--text-muted)}
+.hutang-item-amount{font-weight:700;font-size:.85rem;color:var(--danger);white-space:nowrap;flex-shrink:0}
+
+/* Gaji bulan lalu row */
+.gaji-lalu-row{display:flex;align-items:center;gap:.5rem;padding:.5rem .75rem;border-radius:8px;margin-bottom:.25rem;background:var(--bg-card);border:1px solid var(--border-color);cursor:pointer;transition:all .2s}
+.gaji-lalu-row:hover{border-color:var(--warning);background:rgba(245,158,11,.06)}
+.gaji-lalu-row input[type="checkbox"]{width:18px;height:18px;accent-color:var(--warning);cursor:pointer;flex-shrink:0}
+.gaji-lalu-info{flex:1;min-width:0}
+.gaji-lalu-info div:first-child{font-weight:600;font-size:.82rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gaji-lalu-info div:last-child{font-size:.72rem;color:var(--text-muted)}
+.gaji-lalu-amount{font-weight:700;font-size:.85rem;color:var(--warning);white-space:nowrap;flex-shrink:0}
+
+/* Empty State */
+.empty-state{text-align:center;padding:3rem 1.5rem;color:var(--text-muted)}
+.empty-state i{font-size:3rem;margin-bottom:1rem;opacity:.5}
+.empty-state-title{font-size:1.1rem;font-weight:600;color:var(--text-primary);margin-bottom:.5rem}
+
+/* Toggle Switch */
+.toggle-switch{position:relative;width:50px;height:26px}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:50px;transition:.3s}
+.toggle-slider:before{content:"";position:absolute;height:20px;width:20px;left:2px;bottom:2px;background:white;border-radius:50%;transition:.3s;box-shadow:var(--shadow-sm)}
+input:checked+.toggle-slider{background:var(--primary);border-color:var(--primary)}
+input:checked+.toggle-slider:before{transform:translateX(24px)}
+
+/* Theme Grid */
+.theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1rem}
+.theme-option{display:flex;flex-direction:column;align-items:center;gap:.5rem;padding:1rem;border-radius:1rem;border:2px solid var(--border-color);cursor:pointer;transition:all .15s}
+.theme-option:hover{border-color:var(--text-muted);transform:translateY(-2px)}
+.theme-option.active{border-color:var(--primary);background:rgba(99,102,241,.05)}
+.theme-color{width:40px;height:40px;border-radius:50%;box-shadow:var(--shadow-md)}
+.theme-name{font-size:.75rem;font-weight:500;color:var(--text-secondary)}
+.theme-indigo{background:linear-gradient(135deg,#6366f1,#ec4899)}
+.theme-blue{background:linear-gradient(135deg,#3b82f6,#06b6d4)}
+.theme-green{background:linear-gradient(135deg,#10b981,#84cc16)}
+.theme-orange{background:linear-gradient(135deg,#f97316,#f59e0b)}
+.theme-purple{background:linear-gradient(135deg,#8b5cf6,#d946ef)}
+.theme-red{background:linear-gradient(135deg,#ef4444,#f97316)}
+.theme-pink{background:linear-gradient(135deg,#ec4899,#8b5cf6)}
+.theme-teal{background:linear-gradient(135deg,#14b8a6,#06b6d4)}
+
+/* Utilities */
+.d-none{display:none!important}
+.d-block{display:block!important}
+.d-flex{display:flex!important}
+.d-md-none{display:none!important}
+@media(max-width:768px){.d-md-none{display:none!important}.d-sm-none{display:none!important}}
+.text-left{text-align:left!important}
+.text-center{text-align:center!important}
+.text-right{text-align:right!important}
+.text-primary{color:var(--primary)!important}
+.text-success{color:var(--success)!important}
+.text-danger{color:var(--danger)!important}
+.font-bold{font-weight:700!important}
+.text-sm{font-size:.875rem!important}
+.mb-0{margin-bottom:0!important}
+.mb-2{margin-bottom:1rem!important}
+.w-full{width:100%!important}
+
+/* ============================================
+   TEMA MINT FRESH (override - identik dashboard)
+   ============================================ */
+:root{
+  --primary:#059669;--primary-dark:#047857;--secondary:#84cc16;--success:#10b981;--warning:#f59e0b;--danger:#ef4444;--info:#06b6d4;
+  --bg-primary:#f0fdf4;--bg-secondary:#ecfdf5;--bg-card:#ffffff;--text-primary:#064e3b;--text-secondary:#065f46;--text-muted:#10b981;--border-color:#d1fae5;
+  --shadow-sm:0 1px 2px rgba(5,150,105,0.05);--shadow-md:0 4px 12px rgba(5,150,105,0.08);--shadow-lg:0 10px 30px rgba(5,150,105,0.12);--shadow-xl:0 20px 40px rgba(5,150,105,0.15);
+  --radius-sm:0.5rem;--radius-md:0.75rem;--radius-lg:1rem;--radius-xl:1.5rem;--radius-2xl:2rem;
+  --sidebar-width:260px;--sidebar-collapsed:76px;--header-height:65px;--bottom-nav-height:60px;
+}
+[data-theme="dark"]{--bg-primary:#022c22;--bg-secondary:#064e3b;--bg-card:#065f46;--text-primary:#ecfdf5;--text-secondary:#6ee7b7;--text-muted:#34d399;--border-color:#047857;--shadow-lg:0 10px 30px rgba(0,0,0,0.3)}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{font-size:15px;font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif}
+body{background: linear-gradient(180deg, #f0fdf4 0%, #ecfdf5 50%, #ffffff 100%);background-attachment: fixed;color:var(--text-primary);line-height:1.5;min-height:100vh}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--primary);border-radius:9999px;opacity:.3}
+
+.app-container{display:flex;min-height:100vh}
+
+.sidebar{
+  position:fixed;top:0;left:0;width:var(--sidebar-width);height:100vh;
+  background:rgba(255,255,255,0.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-right:1px solid rgba(255,255,255,0.6);z-index:1000;display:flex;flex-direction:column;
+  transition:all .3s ease;box-shadow:var(--shadow-lg);
+}
+[data-theme="dark"] .sidebar{background:rgba(6,78,59,0.9);border-right:1px solid rgba(255,255,255,0.05)}
+.sidebar.collapsed{width:var(--sidebar-collapsed)}
+@media(max-width:1024px){.sidebar{transform:translateX(-110%);box-shadow:var(--shadow-xl)}.sidebar.mobile-open{transform:translateX(0)}}
+
+.sidebar-header{padding:1.5rem 1.25rem 1rem;border-bottom:none;display:flex;align-items:center;gap:.75rem;min-height:var(--header-height)}
+.logo-icon{width:44px;height:44px;background:linear-gradient(135deg,#059669,#84cc16);border-radius:14px;display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1.1rem;box-shadow:0 4px 12px rgba(5,150,105,0.3)}
+.logo-text{font-size:1.35rem;font-weight:800;background:linear-gradient(135deg,#059669,#84cc16);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sidebar.collapsed .logo-text{opacity:0;width:0}
+.menu-toggle{position:absolute;right:-12px;top:22px;width:26px;height:26px;background:var(--primary);border:none;border-radius:50%;color:white;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1001;font-size:.7rem;box-shadow:0 2px 8px rgba(5,150,105,0.4)}
+.sidebar.collapsed .menu-toggle{transform:rotate(180deg)}
+.sidebar-search{padding:0 1.25rem 1rem;border-bottom:none}
+.search-input-wrapper{position:relative;display:flex;align-items:center}
+.search-input-wrapper i{position:absolute;left:1rem;color:var(--text-muted);font-size:.875rem}
+.search-input{width:100%;padding:.65rem 1rem .65rem 2.5rem;border:1.5px solid #d1fae5;border-radius:12px;background:#f0fdf4;color:var(--text-primary);font-size:.85rem;transition:all .2s}
+.search-input:focus{outline:none;border-color:var(--primary);background:#fff;box-shadow:0 0 0 4px rgba(5,150,105,0.1)}
+.sidebar-nav{flex:1;overflow-y:auto;padding:1rem .75rem}
+.nav-section{margin-bottom:1.25rem}
+.nav-section-title{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#10b981;padding:.5rem 1rem;margin-bottom:.25rem}
+.sidebar.collapsed .nav-section-title{display:none}
+.nav-menu{list-style:none}
+.nav-item{margin-bottom:3px}
+.nav-link{display:flex;align-items:center;gap:.875rem;padding:.65rem 1rem;border-radius:12px;color:#065f46;text-decoration:none;font-size:.88rem;font-weight:500;transition:all .2s ease;position:relative;margin:0 .25rem}
+.nav-link::before{display:none}
+.nav-link:hover{background:rgba(5,150,105,0.06);color:var(--primary);transform:translateX(4px)}
+.nav-link.active{background:linear-gradient(135deg,#059669,#10b981);color:#fff !important;font-weight:600;box-shadow:0 4px 15px rgba(5,150,105,0.35)}
+.nav-link.active i{color:#fff !important}.nav-link.active span{color:#fff !important}
+.nav-link i{width:22px;text-align:center;font-size:1.05rem}
+.nav-link span{white-space:nowrap}
+.sidebar.collapsed .nav-link span{display:none}
+.nav-dropdown{position:relative}
+.nav-dropdown-toggle{justify-content:space-between}
+.nav-dropdown-toggle .dropdown-arrow{transition:transform .2s;font-size:.7rem;margin-left:auto}
+.nav-dropdown.open .nav-dropdown-toggle .dropdown-arrow{transform:rotate(180deg)}
+.nav-submenu{list-style:none;padding-left:2.5rem;max-height:0;overflow:hidden;transition:max-height .3s ease}
+.sidebar.collapsed .nav-submenu{display:none}
+.nav-dropdown.open .nav-submenu{max-height:500px}
+.nav-submenu .nav-link{padding:.5rem 1rem;font-size:.82rem;border-radius:10px}
+.sidebar-footer{padding:1rem;border-top:1px solid var(--border-color);background:rgba(255,255,255,0.5)}
+[data-theme="dark"] .sidebar-footer{background:rgba(0,0,0,0.2)}
+.user-profile{display:flex;align-items:center;gap:.875rem;cursor:pointer}
+.user-profile:hover{opacity:.85}
+.user-avatar{width:38px;height:38px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.8rem;box-shadow:0 2px 8px rgba(5,150,105,0.25)}
+.user-info{flex:1;overflow:hidden}
+.sidebar.collapsed .user-info{display:none}
+.user-name{font-weight:600;font-size:.85rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:.7rem;color:var(--text-muted);text-transform:capitalize}
+
+.main-content{flex:1;margin-left:var(--sidebar-width);min-height:100vh;display:flex;flex-direction:column;transition:margin-left .3s}
+.sidebar.collapsed~.main-content{margin-left:var(--sidebar-collapsed)}
+@media(max-width:1024px){.main-content{margin-left:0}.sidebar.collapsed~.main-content{margin-left:0}}
+
+.main-header{height:var(--header-height);background:rgba(255,255,255,0.7);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.5);display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;position:sticky;top:0;z-index:100}
+[data-theme="dark"] .main-header{background:rgba(2,44,34,0.8);border-bottom:1px solid rgba(255,255,255,0.05)}
+.header-left{display:flex;align-items:center;gap:1rem}
+.header-title{font-size:1.25rem;font-weight:700;color:var(--text-primary)}
+.header-actions{display:flex;align-items:center;gap:.5rem}
+.header-stats{display:flex;align-items:center;gap:2rem}
+.header-stats .stat-item{display:flex;flex-direction:column;align-items:flex-start}
+.header-stats .stat-label{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)}
+.header-stats .stat-value{font-size:.95rem;font-weight:700;color:var(--text-primary)}
+.header-stats .stat-value.positive{color:var(--success)}
+.header-stats .stat-value.negative{color:var(--danger)}
+@media(max-width:768px){.header-stats{display:none}}
+.status-indicator{display:flex;align-items:center;gap:.5rem;padding:.35rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:600;background:var(--bg-secondary)}
+.status-indicator .status-dot{width:8px;height:8px;border-radius:50%}
+.status-indicator.open{background:rgba(16,185,129,.12);color:var(--success)}
+.status-indicator.open .status-dot{background:var(--success);box-shadow:0 0 8px rgba(16,185,129,0.4)}
+.status-indicator.closed{background:rgba(239,68,68,.12);color:var(--danger)}
+.status-indicator.closed .status-dot{background:var(--danger);box-shadow:0 0 8px rgba(239,68,68,0.4)}
+.page-content{flex:1;padding:1.5rem;overflow-y:auto}
+@media(max-width:768px){.page-content{padding:1rem;padding-bottom:calc(var(--bottom-nav-height) + 1rem)}}
+
+/* ===== STATS GRID (identik dashboard) ===== */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.25rem;margin-bottom:1.5rem}
+.stat-card{background:var(--bg-card);border-radius:var(--radius-2xl);border:none;padding:1.5rem;display:flex;align-items:center;gap:1.25rem;transition:all .3s ease;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(5,150,105,0.06)}
+.stat-card:hover{transform:translateY(-6px) scale(1.01);box-shadow:var(--shadow-xl)}
+.stat-card::before{content:'';position:absolute;top:-20px;right:-20px;width:80px;height:80px;border-radius:50%;opacity:.08;z-index:0}
+.stat-card:nth-child(1)::before{background:#059669}
+.stat-card:nth-child(2)::before{background:#ef4444}
+.stat-card:nth-child(3)::before{background:#3b82f6}
+.stat-card:nth-child(4)::before{background:#f59e0b}
+.stat-icon{width:54px;height:54px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:white;flex-shrink:0;position:relative;z-index:1;box-shadow:0 6px 16px rgba(0,0,0,0.1)}
+.stat-icon.green{background:linear-gradient(135deg,#059669,#10b981);box-shadow:0 6px 16px rgba(5,150,105,0.25)}
+.stat-icon.red{background:linear-gradient(135deg,#ef4444,#f87171);box-shadow:0 6px 16px rgba(239,68,68,0.25)}
+.stat-icon.blue{background:linear-gradient(135deg,#3b82f6,#60a5fa);box-shadow:0 6px 16px rgba(59,130,246,0.25)}
+.stat-icon.orange{background:linear-gradient(135deg,#f59e0b,#fbbf24);box-shadow:0 6px 16px rgba(245,158,11,0.25)}
+.stat-content{flex:1;position:relative;z-index:1}
+.stat-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:.35rem}
+.stat-value{font-size:1.5rem;font-weight:800;color:var(--text-primary);line-height:1.2}
+.stat-value.success{color:var(--success)}.stat-value.danger{color:var(--danger)}.stat-value.warning{color:var(--warning)}
+
+
+
+/* ===== TABLE ===== */
+.card{background:var(--bg-card);border-radius:var(--radius-2xl);border:none;overflow:hidden;transition:all .3s ease;box-shadow:0 4px 20px rgba(5,150,105,0.06)}
+.card:hover{box-shadow:var(--shadow-xl)}
+.card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.card-title{font-size:1.05rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:.5rem}
+.card-body{padding:0}
+.table-container{overflow-x:auto}
+.table{width:100%;border-collapse:collapse;font-size:.9rem}
+.table th,.table td{padding:.875rem 1rem;text-align:left;border-bottom:1px solid var(--border-color)}
+.table th{font-weight:600;color:var(--text-secondary);background:var(--bg-secondary);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.table tbody tr:hover{background:rgba(5,150,105,.04)}
+.table tbody tr:last-child td{border-bottom:none}
+.td-nama{font-weight:600;color:var(--text-primary)}
+.td-periode{font-size:.8rem;color:var(--text-muted);white-space:nowrap}
+.td-amount{font-weight:700;color:var(--text-primary);white-space:nowrap}
+.td-amount.paid{color:var(--success)}.td-amount.unpaid{color:var(--danger)}
+
+/* ===== BADGE STATUS ===== */
+.badge{display:inline-flex;align-items:center;gap:.25rem;padding:.35rem .75rem;border-radius:9999px;font-size:.75rem;font-weight:600;white-space:nowrap}
+.badge-paid{background:rgba(16,185,129,.1);color:var(--success)}
+.badge-unpaid{background:rgba(239,68,68,.1);color:var(--danger)}
+.badge-pending{background:rgba(245,158,11,.1);color:var(--warning)}
+
+/* ===== BUTTONS (override mint) ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.625rem 1.25rem;border-radius:var(--radius-lg);font-size:.875rem;font-weight:600;cursor:pointer;transition:all .2s ease;border:none;outline:none;white-space:nowrap}
+.btn:disabled{opacity:.6;cursor:not-allowed}
+.btn-primary{background:linear-gradient(135deg,#059669,#10b981);color:white;box-shadow:0 4px 14px rgba(5,150,105,0.3)}
+.btn-primary:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 20px rgba(5,150,105,0.4)}
+.btn-success{background:var(--success);color:white}
+.btn-danger{background:var(--danger);color:white}
+.btn-warning{background:var(--warning);color:white}
+.btn-outline{background:transparent;border:1.5px solid var(--border-color);color:var(--text-secondary)}
+.btn-outline:hover:not(:disabled){border-color:var(--primary);color:var(--primary)}
+.btn-sm{padding:.4rem .875rem;font-size:.8rem}
+.btn-icon{width:38px;height:38px;padding:0;border-radius:10px;background:var(--bg-secondary);border:1px solid var(--border-color);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.btn-icon:hover{background:rgba(5,150,105,0.1);color:var(--primary);border-color:rgba(5,150,105,0.3);transform:scale(1.05)}
+
+/* ===== MODAL (override mint) ===== */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(6,78,59,0.4);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;visibility:hidden;transition:all .3s ease;padding:1rem}
+.modal-overlay.active{opacity:1;visibility:visible}
+.modal-content{background:var(--bg-card);border-radius:var(--radius-2xl);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-xl);transform:scale(.9) translateY(20px);transition:all .3s ease;border:1px solid rgba(255,255,255,0.5)}
+[data-theme="dark"] .modal-content{border:1px solid rgba(255,255,255,0.05)}
+.modal-overlay.active .modal-content{transform:scale(1) translateY(0)}
+.modal-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-color);display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,#059669,#10b981);border-radius:var(--radius-2xl) var(--radius-2xl) 0 0}
+.modal-title{font-size:1.15rem;font-weight:700;color:#fff}
+.modal-close{width:34px;height:34px;border:none;border-radius:10px;background:rgba(255,255,255,0.2);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s}
+.modal-close:hover{background:rgba(255,255,255,0.35)}
+.modal-body{padding:1.5rem}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border-color);display:flex;gap:.75rem;justify-content:flex-end}
+
+.form-group{margin-bottom:1.25rem}
+.form-label{display:block;font-size:.85rem;font-weight:600;color:var(--text-secondary);margin-bottom:.5rem}
+.form-input,.form-select{width:100%;padding:.75rem 1rem;border:1.5px solid var(--border-color);border-radius:var(--radius-lg);background:#f0fdf4;color:var(--text-primary);font-size:.95rem;transition:all .2s;font-family:inherit}
+.form-input:focus,.form-select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 4px rgba(5,150,105,0.1)}
+.form-input::placeholder{color:var(--text-muted)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:.875rem}
+
+/* ===== RINGKASAN MODAL ===== */
+.modal-summary{background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border-radius:var(--radius-lg);padding:1rem 1.25rem;margin-bottom:1.25rem;border:1.5px dashed var(--border-color)}
+.modal-summary-row{display:flex;justify-content:space-between;align-items:center;padding:.35rem 0;font-size:.9rem}
+.modal-summary-row.total{border-top:2px dashed var(--border-color);margin-top:.5rem;padding-top:.75rem;font-weight:700;font-size:1.1rem;color:var(--primary)}
+
+/* ===== TOAST ===== */
+.toast-container{position:fixed;top:1rem;right:1rem;z-index:9999;display:flex;flex-direction:column;gap:.5rem;max-width:400px}
+.toast{display:flex;align-items:center;gap:1rem;padding:1rem 1.5rem;background:var(--bg-card);border-radius:var(--radius-xl);box-shadow:var(--shadow-xl);border-left:4px solid;animation:slideIn .4s ease}
+@keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.success{border-left-color:var(--success)}.toast.error{border-left-color:var(--danger)}.toast.warning{border-left-color:var(--warning)}
+
+/* ===== LOADING ===== */
+.loading-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:var(--bg-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9998;opacity:0;visibility:hidden;transition:all .3s}
+.loading-overlay.active{opacity:1;visibility:visible}
+.spinner{width:48px;height:48px;border:4px solid var(--border-color);border-top-color:var(--primary);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ===== MOBILE NAV ===== */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bottom-nav-height);background:rgba(255,255,255,0.9);backdrop-filter:blur(12px);border-top:1px solid rgba(255,255,255,0.6);z-index:999;padding:0 1rem}
+[data-theme="dark"] .mobile-nav{background:rgba(2,44,34,0.9);border-top:1px solid rgba(255,255,255,0.05)}
+.mobile-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;color:var(--text-muted);text-decoration:none;font-size:.65rem;font-weight:600;transition:all .2s;padding:.5rem}
+.mobile-nav-item i{font-size:1.15rem}
+.mobile-nav-item.active,.mobile-nav-item:hover{color:var(--primary)}
+.mobile-nav-item.active i{transform:scale(1.1)}
+@media(max-width:768px){.mobile-nav{display:flex}.page-content{padding-bottom:calc(var(--bottom-nav-height) + 1rem)}}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{text-align:center;padding:3rem 1.5rem;color:var(--text-muted)}
+.empty-state i{font-size:3rem;margin-bottom:1rem;opacity:.5}
+.empty-state-title{font-size:1.1rem;font-weight:600;color:var(--text-primary);margin-bottom:.5rem}
+
+/* ===== PROGRESS BAR ===== */
+.progress-wrap{margin-top:0;margin-bottom:1.5rem;background:var(--bg-card);border-radius:var(--radius-xl);padding:1.25rem;box-shadow:0 4px 20px rgba(5,150,105,0.06)}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:.75rem}
+.progress-label{font-size:.85rem;font-weight:600;color:var(--text-secondary)}
+.progress-value{font-size:.85rem;font-weight:700;color:var(--primary)}
+.progress-bar-bg{width:100%;height:10px;background:var(--border-color);border-radius:999px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,#059669,#10b981);border-radius:999px;transition:width .5s ease}
+
+/* ===== DARK MODE FIXES (identik dashboard) ===== */
+[data-theme="dark"] .nav-link{color:var(--text-primary)}
+[data-theme="dark"] .nav-link:hover{background:rgba(255,255,255,.08);color:var(--primary)}
+[data-theme="dark"] .nav-section-title{color:var(--text-muted)}
+[data-theme="dark"] .search-input{background:var(--bg-secondary);border-color:var(--border-color);color:var(--text-primary)}
+[data-theme="dark"] .search-input:focus{background:var(--bg-card);box-shadow:0 0 0 4px rgba(5,150,105,.2)}
+[data-theme="dark"] .logo-text{-webkit-text-fill-color:var(--text-primary)}
+[data-theme="dark"] .filter-select{background:var(--bg-secondary);color:var(--text-primary)}
+[data-theme="dark"] .form-input,[data-theme="dark"] .form-select{background:var(--bg-secondary);color:var(--text-primary)}
+
+/* ===== RESPONSIVE (identik dashboard) ===== */
+
+/* ===== ULTRA RESPONSIVE - NO HORIZONTAL SCROLL ===== */
+.table-container{width:100%;overflow-x:hidden}
+.table{width:100%;table-layout:fixed;border-collapse:collapse}
+.table th,.table td{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* TABLET: hide Periode(3), Tanggal Bayar(9), Bonus(5), Potongan(6) */
+@media(max-width:768px){
+  html{font-size:14px}
+  :root{--header-height:52px;--bottom-nav-height:52px;--sidebar-width:260px}
+  .main-header{padding:0 .875rem}
+  .header-title{font-size:1rem}
+
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:.5rem;margin-bottom:.875rem}
+  .stat-card{padding:.75rem;gap:.5rem;border-radius:.875rem}
+  .stat-icon{width:36px;height:36px;font-size:.9rem;border-radius:10px}
+  .stat-value{font-size:1rem}
+  .stat-label{font-size:.6rem}
+
+  .progress-wrap{padding:.75rem;margin-bottom:.875rem}
+  .progress-label{font-size:.75rem}
+  .progress-value{font-size:.7rem}
+  .progress-bar-bg{height:8px}
+
+  .filter-bar{padding:.625rem;gap:.375rem;margin-bottom:.875rem}
+  .filter-group{gap:.25rem}
+  .filter-label{font-size:.7rem}
+  .filter-select{padding:.35rem .5rem;font-size:.75rem;border-radius:.5rem}
+  .filter-spacer{display:none}
+  .btn-sm{padding:.35rem .625rem;font-size:.75rem}
+
+  .card{border-radius:.875rem}
+  .card-header{padding:.75rem .875rem}
+  .card-title{font-size:.9rem}
+
+  /* Table ultra compact */
+  .table-container{border-radius:.5rem}
+  .table{font-size:.7rem}
+  .table th,.table td{padding:.35rem .3rem}
+  .table th{font-size:.65rem;letter-spacing:0}
+
+  /* Hide columns: Periode(3), Bonus(5), Potongan(6), Tanggal Bayar(9) */
+  .table th:nth-child(3),.table td:nth-child(3),
+  .table th:nth-child(5),.table td:nth-child(5),
+  .table th:nth-child(6),.table td:nth-child(6),
+  .table th:nth-child(9),.table td:nth-child(9){display:none}
+
+  /* Modal */
+  .modal-content{max-width:95%;border-radius:1rem;margin:.25rem}
+  .modal-header{padding:.875rem 1rem}
+  .modal-title{font-size:.95rem}
+  .modal-body{padding:.875rem}
+  .modal-footer{padding:.625rem .875rem}
+  .form-row{grid-template-columns:1fr;gap:.5rem}
+  .form-group{margin-bottom:.875rem}
+  .form-label{font-size:.78rem;margin-bottom:.35rem}
+  .form-input,.form-select{padding:.5rem .75rem;font-size:.85rem}
+  .modal-summary{padding:.625rem .875rem;margin-bottom:.875rem}
+  .modal-summary-row{font-size:.82rem;padding:.25rem 0}
+  .modal-summary-row.total{font-size:.95rem;padding-top:.5rem}
+
+  .btn-icon{width:28px;height:28px;border-radius:8px}
+}
+
+/* PHONE: 1 column stats, more compact */
+@media(max-width:480px){
+  html{font-size:13px}
+  .stats-grid{grid-template-columns:1fr;gap:.375rem}
+  .stat-card{padding:.625rem;gap:.375rem;border-radius:.75rem}
+  .stat-icon{width:32px;height:32px;font-size:.85rem}
+  .stat-value{font-size:.95rem}
+  .stat-label{font-size:.55rem}
+
+  .filter-bar{flex-direction:column;align-items:stretch;gap:.375rem;padding:.5rem}
+  .filter-group{width:100%}
+  .filter-select{width:100%}
+  .btn-sm{width:100%;margin-top:.25rem}
+
+  .table{font-size:.65rem}
+  .table th,.table td{padding:.3rem .25rem}
+  .table th{font-size:.6rem}
+
+  /* Modal full screen */
+  .modal-overlay{padding:0;align-items:flex-end}
+  .modal-content{width:100%;max-width:100%;height:88vh;max-height:88vh;border-radius:1rem 1rem 0 0;margin:0;display:flex;flex-direction:column}
+  .modal-body{flex:1;overflow-y:auto;padding:.75rem}
+  .modal-footer{flex-shrink:0}
+}
+
+/* SMALL PHONE: extra compact */
+@media(max-width:360px){
+  .table{font-size:.6rem}
+  .table th,.table td{padding:.25rem .2rem}
+  .stat-value{font-size:.9rem}
+  .header-title{font-size:.9rem}
+  .btn-icon{width:26px;height:26px}
+}
+
+@supports(padding-top:env(safe-area-inset-top)){
+  @media(max-width:768px){
+    .main-header{padding-top:env(safe-area-inset-top)!important;height:calc(var(--header-height) + env(safe-area-inset-top))!important}
+    .page-content{padding-top:calc(.875rem + env(safe-area-inset-top))!important}
+  }
+}
+  
+/* ===== MODERN FILTER BAR ===== */
+.filter-bar{display:flex;align-items:flex-end;gap:1rem;padding:1.25rem 1.5rem;background:var(--bg-card);border-radius:var(--radius-2xl);border:1px solid var(--border-color);margin-bottom:1.5rem;box-shadow:0 4px 20px rgba(5,150,105,0.06);flex-wrap:wrap}
+.filter-group{display:flex;flex-direction:column;gap:.35rem;min-width:140px;flex:1}
+.filter-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);display:flex;align-items:center;gap:.35rem}
+.filter-select{width:100%;padding:.65rem .875rem;border:1.5px solid var(--border-color);border-radius:var(--radius-lg);background:#f0fdf4;color:var(--text-primary);font-size:.875rem;font-weight:500;cursor:pointer;transition:all .2s;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23059669' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .75rem center;padding-right:2rem}
+.filter-select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 4px rgba(5,150,105,0.1);background:#fff}
+.filter-spacer{flex:1}
+@media(max-width:768px){.filter-bar{padding:.875rem;gap:.5rem;border-radius:var(--radius-lg)}.filter-group{min-width:100px}.filter-select{padding:.5rem .65rem;font-size:.8rem}}
+@media(max-width:480px){.filter-bar{flex-direction:column;align-items:stretch;gap:.5rem;padding:.75rem}.filter-group{width:100%}.filter-select{width:100%}.filter-spacer{display:none}.btn-sm{width:100%;margin-top:.25rem}}
+/* ===== SWEETALERT2 CUSTOM THEME (Mint Fresh) ===== */
+.swal-gaji-popup{border-radius:var(--radius-2xl)!important;background:var(--bg-card)!important;color:var(--text-primary)!important;box-shadow:var(--shadow-xl)!important;border:1px solid var(--border-color)!important}
+.swal2-title{color:var(--text-primary)!important;font-weight:700!important}
+.swal2-html-container{color:var(--text-secondary)!important}
+.swal2-confirm.swal-gaji-btn-confirm{background:linear-gradient(135deg,#059669,#10b981)!important;border-radius:var(--radius-lg)!important;font-weight:600!important;padding:.625rem 1.25rem!important;box-shadow:0 4px 14px rgba(5,150,105,0.3)!important}
+.swal2-cancel.swal-gaji-btn-cancel{background:var(--bg-secondary)!important;color:var(--text-secondary)!important;border:1.5px solid var(--border-color)!important;border-radius:var(--radius-lg)!important;font-weight:600!important;padding:.625rem 1.25rem!important}
+.swal2-cancel.swal-gaji-btn-cancel:hover{border-color:var(--primary)!important;color:var(--primary)!important}
+[data-theme="dark"] .swal-gaji-popup{background:var(--bg-card)!important;border-color:var(--border-color)!important}
+[data-theme="dark"] .swal2-title{color:var(--text-primary)!important}
+[data-theme="dark"] .swal2-html-container{color:var(--text-secondary)!important}
+[data-theme="dark"] .swal2-confirm.swal-gaji-btn-confirm{box-shadow:0 4px 14px rgba(5,150,105,0.4)!important}
+[data-theme="dark"] .swal2-cancel.swal-gaji-btn-cancel{background:var(--bg-secondary)!important;color:var(--text-secondary)!important;border-color:var(--border-color)!important}
+</style>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+<base target="">
+<base target="">
+<base target="">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<base target="">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar (IDENTIK DASHBOARD + menu Penggajian aktif) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-container">
+          <div class="logo-icon"><i class="fas fa-cash-register"></i></div>
+          <span class="logo-text">WebPOS</span>
+        </div>
+      </div>
+      <button class="menu-toggle" id="menuToggle"><i class="fas fa-chevron-left"></i></button>
+
+      <div class="sidebar-search">
+        <div class="search-input-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="text" class="search-input" id="menuSearch" placeholder="Cari menu...">
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <!-- Utama -->
+        <div class="nav-section">
+          <div class="nav-section-title">Utama</div>
+          <ul class="nav-menu">
+            <li class="nav-item"><a href="index.html" class="nav-link" data-menu="dashboard"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+            <li class="nav-item"><a href="page-kasir.html" class="nav-link" data-menu="kasir"><i class="fas fa-cash-register"></i><span>Kasir</span></a></li>
+            <li class="nav-item"><a href="page-produk.html" class="nav-link" data-menu="produk"><i class="fas fa-box"></i><span>Produk</span></a></li>
+          </ul>
+        </div>
+        <!-- Transaksi -->
+        <div class="nav-section">
+          <div class="nav-section-title">Transaksi</div>
+          <ul class="nav-menu">
+            <li class="nav-item"><a href="page-riwayat.html" class="nav-link" data-menu="riwayat"><i class="fas fa-history"></i><span>Riwayat Transaksi</span></a></li>
+            <li class="nav-item nav-dropdown" data-dropdown>
+              <div class="nav-link nav-dropdown-toggle" data-menu="kas">
+                <div style="display:flex;align-items:center;gap:.75rem;"><i class="fas fa-wallet"></i><span>Kas Management</span></div>
+                <i class="fas fa-chevron-down dropdown-arrow"></i>
+              </div>
+              <ul class="nav-submenu">
+                <li><a href="page-kas.html" class="nav-link"><span>Ringkasan Kas</span></a></li>
+                <li><a href="page-modal-harian.html" class="nav-link"><span>Modal Harian</span></a></li>
+                <li><a href="page-kas-masuk.html" class="nav-link"><span>Kas Masuk</span></a></li>
+                <li><a href="page-kas-keluar.html" class="nav-link"><span>Kas Keluar</span></a></li>
+                <li><a href="page-kas-shift.html" class="nav-link"><span>Kas & Shift</span></a></li>
+                <li><a href="page-closing.html" class="nav-link"><span>Closing Shift</span></a></li>
+                <li><a href="page-kas-topup.html" class="nav-link"><span>Top Up</span></a></li>
+                <li><a href="page-kas-tarik.html" class="nav-link"><span>Tarik Tunai</span></a></li>
+              </ul>
+            </li>
+            <li class="nav-item"><a href="page-pembelian.html" class="nav-link" data-menu="pembelian"><i class="fas fa-shopping-cart"></i><span>Pembelian / Restock</span></a></li>
+            <li class="nav-item"><a href="page-hutang.html" class="nav-link" data-menu="hutang"><i class="fas fa-hand-holding-usd"></i><span>Hutang & Piutang</span></a></li>
+          </ul>
+        </div>
+        <!-- Laporan -->
+        <div class="nav-section">
+          <div class="nav-section-title">Laporan</div>
+          <ul class="nav-menu">
+            <li class="nav-item"><a href="page-laporan.html" class="nav-link" data-menu="laporan"><i class="fas fa-chart-bar"></i><span>Laporan Penjualan</span></a></li>
+            <li class="nav-item"><a href="page-laporan-stok.html" class="nav-link" data-menu="laporan-stok"><i class="fas fa-boxes"></i><span>Laporan Stok</span></a></li>
+            <li class="nav-item"><a href="page-laporan-terlaris.html" class="nav-link" data-menu="laporan-terlaris"><i class="fas fa-crown"></i><span>Barang Terlaris</span></a></li>
+          </ul>
+        </div>
+        <!-- Integrasi -->
+        <div class="nav-section">
+          <div class="nav-section-title">Integrasi</div>
+          <ul class="nav-menu">
+            <li class="nav-item"><a href="page-saldo-telegram.html" class="nav-link" data-menu="telegram"><i class="fab fa-telegram"></i><span>Saldo Telegram</span></a></li>
+            <li class="nav-item"><a href="page-data-pelanggan.html" class="nav-link" data-menu="pelanggan"><i class="fas fa-users"></i><span>Data Pelanggan</span></a></li>
+          </ul>
+        </div>
+        <!-- Penggajian -->
+        <div class="nav-section">
+          <div class="nav-section-title">Penggajian</div>
+          <ul class="nav-menu">
+            <li class="nav-item"><a href="page-penggajian.html" class="nav-link active" data-menu="penggajian"><i class="fas fa-money-check-alt"></i><span>Data Penggajian</span></a></li>
+          </ul>
+        </div>
+        <!-- Sistem -->
+        <div class="nav-section">
+          <div class="nav-section-title">Sistem</div>
+          <ul class="nav-menu">
+            <li class="nav-item"><a href="page-pengguna.html" class="nav-link" data-menu="pengguna"><i class="fas fa-user-cog"></i><span>Pengguna</span></a></li>
+            <li class="nav-item"><a href="page-setting.html" class="nav-link" data-menu="setting"><i class="fas fa-cog"></i><span>Pengaturan</span></a></li>
+            <li class="nav-item"><a href="page-backup.html" class="nav-link" data-menu="backup"><i class="fas fa-cloud-upload-alt"></i><span>Backup & Sync</span></a></li>
+            <li class="nav-item"><a href="page-log-aktivitas.html" class="nav-link" data-menu="log-aktivitas"><i class="fas fa-history"></i><span>Log Aktivitas</span></a></li>
+            <li class="nav-item"><a href="page-printer.html" class="nav-link" data-menu="printer"><i class="fas fa-print"></i><span>Printer & Struk</span></a></li>
+            <li class="nav-item"><a href="page-reset.html" class="nav-link" data-menu="reset"><i class="fas fa-trash-alt"></i><span>Reset Data</span></a></li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile" id="userProfile">
+          <div class="user-avatar" id="userAvatar"><i class="fas fa-user"></i></div>
+          <div class="user-info">
+            <div class="user-name" id="userName">Loading...</div>
+            <div class="user-role" id="userRole">-</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header (IDENTIK DASHBOARD) -->
+      <header class="main-header">
+        <div class="header-left">
+          <button class="btn-icon" id="mobileMenuToggle" style="display:flex;"><i class="fas fa-bars"></i></button>
+          <h1 class="header-title">Penggajian Karyawan</h1>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon" id="btnTheme" title="Toggle Dark Mode"><i class="fas fa-moon"></i></button>
+          <button class="btn-icon" id="btnLogout" title="Logout"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="page-content">
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon green"><i class="fas fa-check-circle"></i></div>
+            <div class="stat-content">
+              <div class="stat-label">Sudah Dibayar</div>
+              <div class="stat-value success" id="statSudahBayar">Rp 0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red"><i class="fas fa-clock"></i></div>
+            <div class="stat-content">
+              <div class="stat-label">Belum Dibayar</div>
+              <div class="stat-value danger" id="statBelumBayar">Rp 0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon blue"><i class="fas fa-users"></i></div>
+            <div class="stat-content">
+              <div class="stat-label">Jumlah Karyawan</div>
+              <div class="stat-value" id="statJumlahKaryawan">0</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange"><i class="fas fa-money-bill-wave"></i></div>
+            <div class="stat-content">
+              <div class="stat-label">Total Gaji Bulan Ini</div>
+              <div class="stat-value warning" id="statTotalGaji">Rp 0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-wrap" id="progressWrap">
+          <div class="progress-header">
+            <span class="progress-label">Progress Pembayaran Gaji</span>
+            <span class="progress-value" id="progressText">0% terbayar</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <div class="filter-group">
+            <label class="filter-label"><i class="fas fa-calendar-alt"></i> Bulan</label>
+            <select class="filter-select" id="filterBulan">
+              <option value="01">Januari</option><option value="02">Februari</option><option value="03">Maret</option>
+              <option value="04">April</option><option value="05">Mei</option><option value="06">Juni</option>
+              <option value="07">Juli</option><option value="08">Agustus</option><option value="09">September</option>
+              <option value="10">Oktober</option><option value="11">November</option><option value="12">Desember</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label"><i class="fas fa-calendar"></i> Tahun</label>
+            <select class="filter-select" id="filterTahun"></select>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label"><i class="fas fa-filter"></i> Status</label>
+            <select class="filter-select" id="filterStatus">
+              <option value="all">Semua</option><option value="paid">Sudah Dibayar</option><option value="unpaid">Belum Dibayar</option>
+            </select>
+          </div>
+          <div class="filter-spacer"></div>
+          <button class="btn btn-primary btn-sm" onclick="openModalInputGaji()">
+            <i class="fas fa-plus"></i> Input Gaji
+          </button>
+        </div>
+
+        <!-- Table Card -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title"><i class="fas fa-list" style="color:var(--primary)"></i> Daftar Penggajian</h3>
+            <span class="badge badge-primary" id="badgePeriode">Mei 2026</span>
+          </div>
+          <div class="card-body">
+            <div class="table-container">
+              <table class="table" id="tableGaji">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Nama</th>
+                    <th>Periode</th>
+                    <th>Tgl Input</th>
+                    <th>Gaji Pokok</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th style="text-align:center">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyGaji">
+                  <tr><td colspan="10">
+                    <div class="empty-state">
+                      <i class="fas fa-money-check-alt"></i>
+                      <div class="empty-state-title">Belum ada data penggajian</div>
+                      <p>Pilih periode atau tambah data gaji karyawan</p>
+                    </div>
+                  </td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Mobile Bottom Navigation (IDENTIK DASHBOARD) -->
+    <nav class="mobile-nav">
+      <a href="index.html" class="mobile-nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      <a href="page-kasir.html" class="mobile-nav-item"><i class="fas fa-cash-register"></i><span>Kasir</span></a>
+      <a href="page-produk.html" class="mobile-nav-item"><i class="fas fa-box"></i><span>Produk</span></a>
+      <a href="page-riwayat.html" class="mobile-nav-item"><i class="fas fa-history"></i><span>Riwayat</span></a>
+      <a href="page-setting.html" class="mobile-nav-item"><i class="fas fa-cog"></i><span>Setting</span></a>
+    </nav>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <p style="margin-top:1rem;color:var(--text-secondary)">Loading...</p>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ===== MODAL INPUT GAJI ===== -->
+  <div class="modal-overlay" id="modalInputGaji" onclick="if(event.target===this)closeModalInputGaji()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-money-check-alt"></i> Input Penggajian</h3>
+        <button class="modal-close" onclick="closeModalInputGaji()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Nama Karyawan <span style="color:var(--danger)">*</span></label>
+          <div style="display:flex;gap:.5rem;">
+            <input type="text" class="form-input" id="gajiNama" placeholder="Ketik atau pilih nama..." autocomplete="off" list="listKaryawan" onchange="loadHutangKaryawan()" style="flex:1;">
+            <datalist id="listKaryawan"></datalist>
+            <button type="button" class="btn-icon" onclick="loadHutangKaryawan()" title="Refresh Hutang" style="width:42px;height:42px;flex-shrink:0;">
+              <i class="fas fa-sync-alt" id="iconRefreshHutang"></i>
+            </button>
+          </div>
+          <small style="color:var(--text-muted);font-size:.75rem;display:block;margin-top:.35rem;">
+            <i class="fas fa-info-circle"></i> Pilih nama dari list atau ketik manual. Klik <i class="fas fa-sync-alt"></i> untuk cek hutang.
+          </small>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Periode Awal</label>
+            <input type="date" class="form-input" id="gajiPeriodeAwal">
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Periode Akhir</label>
+            <input type="date" class="form-input" id="gajiPeriodeAkhir">
+          </div>
+        </div>
+        <div class="form-row" style="margin-top:1.25rem">
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Gaji Pokok <span style="color:var(--danger)">*</span></label>
+            <div style="display:flex">
+              <span style="padding:.75rem .875rem;background:var(--bg-secondary);border:1.5px solid var(--border-color);border-right:none;border-radius:.75rem 0 0 .75rem;color:var(--text-muted);font-size:.875rem">Rp</span>
+              <input type="number" class="form-input" id="gajiPokok" placeholder="0" oninput="updateGajiPreview()" style="border-radius:0 .75rem .75rem 0">
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0">
+            <label class="form-label">Bonus / Lembur</label>
+            <div style="display:flex">
+              <span style="padding:.75rem .875rem;background:var(--bg-secondary);border:1.5px solid var(--border-color);border-right:none;border-radius:.75rem 0 0 .75rem;color:var(--text-muted);font-size:.875rem">Rp</span>
+              <input type="number" class="form-input" id="gajiBonus" placeholder="0" oninput="updateGajiPreview()" style="border-radius:0 .75rem .75rem 0">
+            </div>
+          </div>
+        </div>
+        <div class="form-group" style="margin-top:1.25rem">
+          <label class="form-label">Potongan (Alpa, Kasbon, dll)</label>
+          <div style="display:flex">
+            <span style="padding:.75rem .875rem;background:var(--bg-secondary);border:1.5px solid var(--border-color);border-right:none;border-radius:.75rem 0 0 .75rem;color:var(--text-muted);font-size:.875rem">Rp</span>
+            <input type="number" class="form-input" id="gajiPotongan" placeholder="0" oninput="updateGajiPreview()" style="border-radius:0 .75rem .75rem 0">
+          </div>
+        </div>
+        <!-- HUTANG KARYAWAN → POTONGAN -->
+<div class="form-group" id="hutangPotonganSection" style="display:none;">
+  <label class="form-label">
+    <i class="fas fa-hand-holding-usd" style="color:var(--danger)"></i> 
+    Hutang Karyawan ke Perusahaan
+  </label>
+  <div id="hutangListContainer" style="max-height:160px;overflow-y:auto;border:1.5px solid var(--border-color);border-radius:var(--radius-lg);background:#f0fdf4;padding:.5rem;">
+    <!-- diisi JS -->
+  </div>
+  <small style="color:var(--text-muted);font-size:.75rem;display:block;margin-top:.35rem;">
+    <i class="fas fa-info-circle"></i> Centang hutang yang ingin dipotong dari gaji. Total otomatis masuk ke Potongan.
+  </small>
+</div>
+        <!-- GAJI BULAN LALU BELUM DIBAYAR -->
+        <div class="form-group" id="gajiBulanLaluSection" style="display:none;">
+          <label class="form-label">
+            <i class="fas fa-history" style="color:var(--warning)"></i> 
+            Gaji Bulan Lalu Belum Dibayar
+          </label>
+          <div id="gajiBulanLaluContainer" style="max-height:120px;overflow-y:auto;border:1.5px solid var(--border-color);border-radius:var(--radius-lg);background:#fffbeb;padding:.5rem;">
+            <!-- diisi JS -->
+          </div>
+          <small style="color:var(--text-muted);font-size:.75rem;display:block;margin-top:.35rem;">
+            <i class="fas fa-info-circle"></i> Centang untuk memasukkan ke perhitungan bulan ini (carry-over).
+          </small>
+        </div>
+
+        <div class="modal-summary">
+          <div class="modal-summary-row"><span>Gaji Pokok</span><span id="previewPokok">Rp 0</span></div>
+          <div class="modal-summary-row"><span>Bonus</span><span id="previewBonus">Rp 0</span></div>
+          <div class="modal-summary-row"><span>Potongan</span><span id="previewPotongan">- Rp 0</span></div>
+          <div class="modal-summary-row total"><span>Total Diterima</span><span id="previewTotal">Rp 0</span></div>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">Status Pembayaran</label>
+          <select class="form-select" id="gajiStatus">
+            <option value="unpaid">Belum Dibayar</option>
+            <option value="paid">Sudah Dibayar</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin-top:1rem;margin-bottom:0;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1.5px dashed #f59e0b;border-radius:12px;padding:.75rem 1rem;">
+          <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.9rem;font-weight:600;color:#92400e;">
+            <input type="checkbox" id="checkBulanLalu" style="width:18px;height:18px;accent-color:#f59e0b;" onchange="toggleInputBulanLalu()">
+            <i class="fas fa-history"></i> Input untuk Gaji Bulan Lalu
+          </label>
+          <small style="color:#a16207;font-size:.75rem;display:block;margin-top:.35rem;margin-left:1.65rem;">
+            Centang ini kalau Anda mau input gaji untuk bulan sebelumnya (backdate). Periode otomatis ke bulan lalu.
+          </small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModalInputGaji()">Batal</button>
+        <button class="btn btn-primary" onclick="saveGaji()"><i class="fas fa-save"></i> Simpan</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODAL DETAIL GAJI ===== -->
+  <div class="modal-overlay" id="modalDetailGaji" onclick="if(event.target===this)closeModalDetailGaji()">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fas fa-file-invoice-dollar"></i> Detail Penggajian</h3>
+        <button class="modal-close" onclick="closeModalDetailGaji()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body" id="detailGajiBody">
+        <!-- diisi JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModalDetailGaji()">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/firebase-config.js?v=2"></script>
+  <script>
+    // Safety check: if firebase.storage is not available, create a dummy
+    if (typeof firebase !== 'undefined' && !firebase.storage) {
+      firebase.storage = function() {
+        return {
+          ref: function() { return { put: function() {}, getDownloadURL: function() { return Promise.resolve(''); } }; }
+        };
+      };
+    }
+  </script>
+  <script src="js/utils.js?v=3"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/sidebar-filter.js"></script>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    auth.onAuthStateChanged((user) => {
+      if (!user && !Utils.getStorage('webpos_session')) {
+        window.location.href = 'login.html';
+        return;
+      }
+      if (user) {
+        Auth.loadUserData(user.uid).then(() => {
+          initPenggajian();
+        });
+      }
+    });
+  });
+
+  function initPenggajian() {
+    /* ===== STATE ===== */
+    let currentBulan = '';
+    let currentTahun = '';
+    let allGajiData = [];
+    let hutangKaryawanList = [];
+    let selectedHutangIds = [];
+    let gajiBulanLaluList = [];
+    let selectedGajiLaluIds = [];
+
+    /* ===== DOM ===== */
+    const sidebar = document.getElementById('sidebar');
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const btnTheme = document.getElementById('btnTheme');
+    const btnLogout = document.getElementById('btnLogout');
+    const filterBulan = document.getElementById('filterBulan');
+    const filterTahun = document.getElementById('filterTahun');
+    const filterStatus = document.getElementById('filterStatus');
+
+    /* ===== SETUP FILTER BULAN/TAHUN ===== */
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = String(now.getMonth() + 1).padStart(2, '0');
+    const tahunSelect = document.getElementById('filterTahun');
+    for (let y = currentYear; y >= currentYear - 3; y--) {
+      const opt = document.createElement('option');
+      opt.value = y;
+      opt.textContent = y;
+      tahunSelect.appendChild(opt);
+    }
+    filterBulan.value = currentMonth;
+    tahunSelect.value = currentYear;
+    currentBulan = currentMonth;
+    currentTahun = String(currentYear);
+
+    /* ===== SIDEBAR TOGGLE (identik dashboard) ===== */
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      const icon = menuToggle.querySelector('i');
+      icon.style.transform = sidebar.classList.contains('collapsed') ? 'rotate(180deg)' : 'rotate(0deg)';
+    });
+    mobileMenuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('mobile-open');
+    });
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 1024) {
+        if (!sidebar.contains(e.target) && !mobileMenuToggle.contains(e.target)) {
+          sidebar.classList.remove('mobile-open');
+        }
+      }
+    });
+
+    /* ===== DROPDOWN (identik dashboard) ===== */
+    document.querySelectorAll('[data-dropdown]').forEach(dropdown => {
+      const toggle = dropdown.querySelector('.nav-dropdown-toggle');
+      if (toggle) {
+        toggle.addEventListener('click', (e) => {
+          e.preventDefault();
+          dropdown.classList.toggle('open');
+        });
+      }
+    });
+
+    /* ===== THEME (identik dashboard) ===== */
+    btnTheme.addEventListener('click', () => {
+      const isDark = Utils.Theme.toggleDarkMode();
+      btnTheme.innerHTML = isDark ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+    });
+    if (Utils.Theme.isDarkMode()) {
+      btnTheme.innerHTML = '<i class="fas fa-sun"></i>';
+    }
+
+    /* ===== LOGOUT (identik dashboard) ===== */
+    btnLogout.addEventListener('click', () => {
+      Utils.confirm('Apakah Anda yakin ingin logout?', () => {
+        Auth.logout();
+      });
+    });
+
+    /* ===== LOAD USER DATA (identik dashboard) ===== */
+    function loadUserData() {
+      const user = Auth.getCurrentUser();
+      if (user) {
+        document.getElementById('userName').textContent = user.name || user.email;
+        document.getElementById('userRole').textContent = user.role.charAt(0).toUpperCase() + user.role.slice(1);
+        const avatar = document.getElementById('userAvatar');
+        if (avatar && user.name) {
+          const initials = user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+          avatar.textContent = initials;
+        }
+      }
+    }
+    loadUserData();
+
+    /* ===== FILTER CHANGE ===== */
+    filterBulan.addEventListener('change', () => { currentBulan = filterBulan.value; currentTahun = filterTahun.value; loadGajiData(); });
+    filterTahun.addEventListener('change', () => { currentBulan = filterBulan.value; currentTahun = filterTahun.value; loadGajiData(); });
+    filterStatus.addEventListener('change', () => { renderTable(); });
+    document.getElementById('gajiNama').addEventListener('blur', loadHutangKaryawan);
+
+
+    /* ===== LOAD DATA GAJI ===== */
+    async function loadGajiData() {
+      Utils.showLoading();
+      allGajiData = [];
+      try {
+        const db = firebase.database();
+        const periodeLabel = getBulanLabel(currentBulan) + ' ' + currentTahun;
+        document.getElementById('badgePeriode').textContent = periodeLabel;
+
+        const snapshot = await db.ref('penggajian').once('value');
+        const allData = snapshot.val() || {};
+        const targetPrefix = currentTahun + '-' + currentBulan;
+
+        // Load SEMUA data, filter berdasarkan PERIODE gaji (periodeAkhir), bukan tanggal input
+        Object.entries(allData).forEach(([dateStr, dayData]) => {
+          Object.entries(dayData).forEach(([gajiId, gaji]) => {
+            const periodeAkhir = gaji.periodeAkhir || '';
+            const periodeMonth = periodeAkhir.substring(0, 7); // format: YYYY-MM
+
+            // Cek apakah periode akhir cocok dengan filter bulan
+            if (periodeMonth === targetPrefix) {
+              // Data asli untuk bulan ini
+              allGajiData.push({ id: gajiId, ...gaji, dateStr: dateStr, carryOver: false });
+            } else if (periodeMonth < targetPrefix) {
+              // Data bulan lalu — tampilkan sebagai carry-over
+              const status = gaji.paymentStatus || gaji.status || 'unpaid';
+              // Tampilkan SEMUA gaji lalu (paid maupun unpaid) supaya user bisa lihat history
+              allGajiData.push({ 
+                id: gajiId, ...gaji, dateStr: dateStr, 
+                carryOver: true,
+                displayPeriode: (gaji.periodeAwal || '-') + ' s/d ' + (gaji.periodeAkhir || '-')
+              });
+            }
+            // Kalau periodeMonth > targetPrefix, skip (gaji future)
+          });
+        });
+
+        allGajiData.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+        updateStats();
+        renderTable();
+      } catch (err) {
+        console.error('Error load gaji:', err);
+        showToast('Gagal memuat data penggajian', 'error');
+      }
+      Utils.hideLoading();
+    }
+
+    /* ===== UPDATE STATS ===== */
+    function updateStats() {
+      let sudah = 0, belum = 0, totalBulanIni = 0;
+      const uniqueKaryawan = new Set();
+
+      allGajiData.forEach(g => {
+        const amount = g.totalDiterima || 0;
+        uniqueKaryawan.add(g.namaKaryawan);
+
+        if (g.carryOver) {
+          // Gaji lalu: hanya hitung yang belum dibayar sebagai tunggakan
+          if ((g.paymentStatus || g.status) !== 'paid') {
+            belum += amount;
+          }
+        } else {
+          // Gaji bulan ini: hitung normal
+          totalBulanIni += amount;
+          if ((g.paymentStatus || g.status) === 'paid') sudah += amount;
+          else belum += amount;
+        }
+      });
+
+      document.getElementById('statSudahBayar').textContent = formatRupiah(sudah);
+      document.getElementById('statBelumBayar').textContent = formatRupiah(belum);
+      document.getElementById('statJumlahKaryawan').textContent = uniqueKaryawan.size;
+      document.getElementById('statTotalGaji').textContent = formatRupiah(totalBulanIni);
+
+      const totalAll = sudah + belum;
+      const pct = totalAll > 0 ? Math.round((sudah / totalAll) * 100) : 0;
+      document.getElementById('progressBar').style.width = pct + '%';
+      document.getElementById('progressText').textContent = pct + '% terbayar (' + formatRupiah(sudah) + ' dari ' + formatRupiah(totalAll) + ')';
+    }
+
+    /* ===== RENDER TABLE ===== */
+    function renderTable() {
+      const tbody = document.getElementById('tbodyGaji');
+      const statusEl = document.getElementById('filterStatus');
+      const statusFilter = statusEl ? statusEl.value : 'all';
+      let filtered = allGajiData;
+      if (statusFilter !== 'all') {
+        filtered = allGajiData.filter(g => (g.paymentStatus || g.status || 'unpaid') === statusFilter);
+      }
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="10"><div class="empty-state"><i class="fas fa-money-check-alt"></i><div class="empty-state-title">Tidak ada data</div><p>Belum ada penggajian untuk periode ini atau status yang dipilih</p></div></td></tr>`;
+        return;
+      }
+      let html = '';
+      filtered.forEach((g, idx) => {
+        const status = g.paymentStatus || g.status || 'unpaid';
+        const isPaid = status === 'paid';
+        let badgeClass = isPaid ? 'badge-paid' : 'badge-unpaid';
+        let badgeText = isPaid ? 'Sudah Dibayar' : 'Belum Dibayar';
+        let rowStyle = '';
+        if (g.carryOver && g.carryOverPaid) {
+          badgeClass = 'badge-paid';
+          badgeText = 'Lunas (Carry-Over)';
+          rowStyle = 'background:rgba(16,185,129,.04)!important;';
+        } else if (g.carryOver && !isPaid) {
+          badgeText = 'Tunggakan Bln Lalu';
+          badgeClass = 'badge-pending';
+          rowStyle = 'background:rgba(245,158,11,.04)!important;';
+        }
+        const tanggalInput = g.timestamp ? formatDate(g.timestamp) : '-';
+        const periode = g.displayPeriode || ((g.periodeAwal || '-') + ' s/d ' + (g.periodeAkhir || '-'));
+
+        // Cek apakah ini backdate (periode beda dengan tanggal input)
+        const inputMonth = g.dateStr ? g.dateStr.substring(0, 7) : '';
+        const periodeMonth = (g.periodeAkhir || '').substring(0, 7);
+        const isBackdate = inputMonth && periodeMonth && inputMonth !== periodeMonth;
+        const backdateBadge = isBackdate ? `<span style="font-size:.65rem;color:var(--warning);margin-left:.35rem;"><i class="fas fa-history"></i></span>` : '';
+
+        html += `<tr onclick="showDetailGaji('${g.id}', '${g.dateStr}')" style="cursor:pointer;${rowStyle}" title="Klik untuk lihat detail">
+          <td>${idx + 1}</td>
+          <td class="td-nama">${escapeHtml(g.namaKaryawan || '-')}${backdateBadge}</td>
+          <td class="td-periode">${periode}</td>
+          <td class="td-periode">${tanggalInput}</td>
+          <td class="td-amount">${formatRupiah(g.gajiPokok || 0)}</td>
+          <td class="td-amount ${isPaid ? 'paid' : 'unpaid'}">${formatRupiah(g.totalDiterima || 0)}</td>
+          <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+          <td style="text-align:center;white-space:nowrap;" onclick="event.stopPropagation()">
+            <button class="btn-icon" onclick="showDetailGaji('${g.id}', '${g.dateStr}')" title="Detail" style="color:var(--primary);width:28px;height:28px;"><i class="fas fa-eye" style="font-size:.8rem;"></i></button>
+            ${isPaid
+              ? `<button class="btn-icon" onclick="batalkanGaji('${g.id}', '${g.dateStr}')" title="Batalkan" style="color:var(--danger);width:28px;height:28px;"><i class="fas fa-undo" style="font-size:.8rem;"></i></button>`
+              : `<button class="btn-icon" onclick="bayarGaji('${g.id}', '${g.dateStr}')" title="Bayar" style="color:var(--success);width:28px;height:28px;"><i class="fas fa-check" style="font-size:.8rem;"></i></button>`
+            }
+            <button class="btn-icon" onclick="hapusGaji('${g.id}', '${g.dateStr}')" title="Hapus" style="color:var(--danger);width:28px;height:28px;"><i class="fas fa-trash" style="font-size:.8rem;"></i></button>
+          </td>
+        </tr>`;
+      });
+      tbody.innerHTML = html;
+    }
+
+    /* ===== GLOBAL FUNCTIONS ===== */
+    window.openModalInputGaji = function() {
+      document.getElementById('modalInputGaji').classList.add('active');
+      const now = new Date();
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+      document.getElementById('gajiPeriodeAwal').value = formatDateInput(firstDay);
+      document.getElementById('gajiPeriodeAkhir').value = formatDateInput(lastDay);
+      populateDatalistKaryawan(); // ⭐ Isi dropdown nama
+      setTimeout(() => document.getElementById('gajiNama').focus(), 100);
+    };
+
+    window.toggleInputBulanLalu = function() {
+      const isChecked = document.getElementById('checkBulanLalu').checked;
+      const now = new Date();
+      if (isChecked) {
+        // Set periode ke bulan lalu
+        const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+        const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+        document.getElementById('gajiPeriodeAwal').value = formatDateInput(lastMonth);
+        document.getElementById('gajiPeriodeAkhir').value = formatDateInput(lastMonthEnd);
+        showToast('Periode otomatis di-set ke bulan lalu', 'info');
+      } else {
+        // Balik ke bulan ini
+        const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+        const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+        document.getElementById('gajiPeriodeAwal').value = formatDateInput(firstDay);
+        document.getElementById('gajiPeriodeAkhir').value = formatDateInput(lastDay);
+      }
+    };
+    window.closeModalInputGaji = function() {
+      document.getElementById('modalInputGaji').classList.remove('active');
+      resetForm();
+    };
+    window.updateGajiPreview = function() {
+      const pokok = parseInt(document.getElementById('gajiPokok').value) || 0;
+      const bonus = parseInt(document.getElementById('gajiBonus').value) || 0;
+      const potongan = parseInt(document.getElementById('gajiPotongan').value) || 0;
+
+      // Hitung total gaji lalu yang dicentang
+      let totalLalu = 0;
+      gajiBulanLaluList.forEach((g, idx) => {
+        const cb = document.getElementById('gajiLaluChk_' + idx);
+        if (cb && cb.checked) totalLalu += (g.totalDiterima || 0);
+      });
+
+      const total = pokok + bonus - potongan + totalLalu;
+      document.getElementById('previewPokok').textContent = formatRupiah(pokok);
+      document.getElementById('previewBonus').textContent = formatRupiah(bonus);
+      if (totalLalu > 0) {
+        document.getElementById('previewPotongan').textContent = '- ' + formatRupiah(potongan) + ' + ' + formatRupiah(totalLalu) + ' (Bln Lalu)';
+      } else {
+        document.getElementById('previewPotongan').textContent = '- ' + formatRupiah(potongan);
+      }
+      document.getElementById('previewTotal').textContent = formatRupiah(total);
+    };
+    window.saveGaji = async function() {
+      const nama = document.getElementById('gajiNama').value.trim();
+      const periodeAwal = document.getElementById('gajiPeriodeAwal').value;
+      const periodeAkhir = document.getElementById('gajiPeriodeAkhir').value;
+      const pokok = parseInt(document.getElementById('gajiPokok').value) || 0;
+      const bonus = parseInt(document.getElementById('gajiBonus').value) || 0;
+      const potongan = parseInt(document.getElementById('gajiPotongan').value) || 0;
+      const status = document.getElementById('gajiStatus').value;
+
+      // Hitung total gaji lalu yang dicentang
+      let totalLalu = 0;
+      gajiBulanLaluList.forEach((g, idx) => {
+        const cb = document.getElementById('gajiLaluChk_' + idx);
+        if (cb && cb.checked) totalLalu += (g.totalDiterima || 0);
+      });
+
+      const total = pokok + bonus - potongan + totalLalu;
+      if (!nama) { showToast('Nama karyawan wajib diisi', 'error'); return; }
+      if (pokok < 1 && totalLalu === 0) { showToast('Gaji pokok harus lebih dari 0', 'error'); return; }
+
+      Utils.showLoading();
+      try {
+        const db = firebase.database();
+        const user = firebase.auth().currentUser;
+        const timestamp = Date.now();
+        const todayStr = new Date().toISOString().split('T')[0];
+        const gajiId = 'GAJI' + timestamp;
+        const data = {
+          id: gajiId, namaKaryawan: nama, periodeAwal: periodeAwal, periodeAkhir: periodeAkhir,
+          gajiPokok: pokok, bonus: bonus, potongan: potongan, totalDiterima: total,
+          timestamp: timestamp, date: todayStr,
+          userId: user ? user.uid : 'unknown',
+          userName: document.getElementById('userName').textContent,
+          paymentStatus: status, status: status,
+          hutangDipotong: selectedHutangIds.length > 0 ? selectedHutangIds : null,
+          jumlahHutangDipotong: selectedHutangIds.length > 0 ? potongan : 0,
+          gajiLaluDibayar: selectedGajiLaluIds.length > 0 ? selectedGajiLaluIds : null,
+          jumlahGajiLalu: totalLalu
+        };
+
+        // ⭐ BAYAR HUTANG VIA POTONGAN GAJI
+        if (selectedHutangIds.length > 0) {
+          for (const hid of selectedHutangIds) {
+            const hutang = hutangKaryawanList.find(h => h.id === hid);
+            if (!hutang) continue;
+            const sisa = hutang.remaining || hutang.amount || 0;
+
+            // 1. Update hutang jadi lunas
+            await db.ref('debts/' + hid).update({
+              remaining: 0, status: 'paid', paidAt: timestamp, updatedAt: timestamp
+            });
+
+            // 2. Catat pembayaran hutang (untuk page hutang / dashboard)
+            await db.ref('debt_payments/' + hid + '/' + timestamp).set({
+              amount: sisa,
+              note: 'Potongan gaji ' + nama + ' (' + periodeAwal + ' s/d ' + periodeAkhir + ')',
+              affectKas: false,
+              viaPotonganGaji: true,
+              gajiId: gajiId,
+              userId: user ? user.uid : 'unknown',
+              userName: document.getElementById('userName').textContent,
+              timestamp: timestamp
+            });
+
+                        // 3. ⭐ Tidak menulis ke transactions/kas — perhitungan hutang via potongan gaji
+            // hanya tercatat di modul Penggajian & Hutang, tidak mempengaruhi Kas
+          }
+        }
+
+        // ⭐ BAYAR GAJI BULAN LALU YANG DICENTANG
+        if (selectedGajiLaluIds.length > 0) {
+          for (const gl of selectedGajiLaluIds) {
+            await db.ref('penggajian/' + gl.dateStr + '/' + gl.id).update({
+              paymentStatus: 'paid',
+              status: 'paid',
+              paidAt: timestamp,
+              carryOverPaid: true,
+              carryOverGajiId: gajiId,
+              carryOverDate: todayStr
+            });
+          }
+        }
+
+        if (status === 'paid') {
+          data.paidAt = timestamp;
+          // ⭐ TIDAK ADA PENULISAN KE transactions / kas_keluar
+          // Perhitungan gaji hanya di modul Penggajian, tidak mempengaruhi Kas
+        }
+        await db.ref('penggajian/' + todayStr + '/' + gajiId).set(data);
+        closeModalInputGaji();
+        showToast('Data gaji berhasil disimpan', 'success');
+        loadGajiData();
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal menyimpan: ' + err.message, 'error');
+      }
+      Utils.hideLoading();
+    };
+    window.bayarGaji = async function(gajiId, dateStr) {
+      const g = allGajiData.find(x => x.id === gajiId && x.dateStr === dateStr);
+      const nama = g ? g.namaKaryawan : 'Karyawan';
+      const total = g ? formatRupiah(g.totalDiterima || 0) : 'Rp 0';
+
+      const result = await Swal.fire({
+        title: 'Konfirmasi Pembayaran',
+        html: `<div style="text-align:center">
+          <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--success),#34d399);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;color:white;font-size:1.75rem;">
+            <i class="fas fa-check"></i>
+          </div>
+          <p style="font-size:1rem;color:var(--text-primary);margin-bottom:.5rem;font-weight:600;">Tandai gaji <strong>${escapeHtml(nama)}</strong> sebagai</p>
+          <p style="font-size:1.1rem;color:var(--success);font-weight:700;margin-bottom:.25rem;">SUDAH DIBAYAR</p>
+          <p style="font-size:.9rem;color:var(--text-muted);">Total: <strong>${total}</strong></p>
+          <p style="font-size:.8rem;color:var(--text-muted);margin-top:.75rem;padding:.5rem;background:var(--bg-secondary);border-radius:8px;">
+            <i class="fas fa-info-circle"></i> Pembayaran hanya tercatat di modul Penggajian, tidak mempengaruhi Kas.
+          </p>
+        </div>`,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-check"></i> Ya, Tandai Dibayar',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#059669',
+        cancelButtonColor: '#6b7280',
+        reverseButtons: true,
+        customClass: { popup: 'swal-gaji-popup', confirmButton: 'swal-gaji-btn-confirm', cancelButton: 'swal-gaji-btn-cancel' }
+      });
+
+      if (!result.isConfirmed) return;
+
+      Utils.showLoading();
+      try {
+        const db = firebase.database();
+        const timestamp = Date.now();
+        await db.ref('penggajian/' + dateStr + '/' + gajiId).update({ paymentStatus: 'paid', status: 'paid', paidAt: timestamp });
+        showToast('Gaji berhasil ditandai dibayar', 'success');
+        loadGajiData();
+      } catch (err) {
+        console.error(err);
+        showToast('Gagal memproses pembayaran', 'error');
+      }
+      Utils.hideLoading();
+    };
+    window.batalkanGaji = async function(gajiId, dateStr) {
+      const g = allGajiData.find(x => x.id === gajiId && x.dateStr === dateStr);
+      const nama = g ? g.namaKaryawan : 'Karyawan';
+
+      const result = await Swal.fire({
+        title: 'Batalkan Pembayaran?',
+        html: `<div style="text-align:center">
+          <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--warning),#fbbf24);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;color:white;font-size:1.75rem;">
+            <i class="fas fa-undo"></i>
+          </div>
+          <p style="font-size:1rem;color:var(--text-primary);margin-bottom:.5rem;">Batalkan status <strong>SUDAH DIBAYAR</strong> untuk</p>
+          <p style="font-size:1.1rem;color:var(--warning);font-weight:700;">${escapeHtml(nama)}</p>
+          <p style="font-size:.85rem;color:var(--text-muted);margin-top:.75rem;">Status akan kembali menjadi <strong>Belum Dibayar</strong>.</p>
+        </div>`,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-undo"></i> Ya, Batalkan',
+        cancelButtonText: 'Tutup',
+        confirmButtonColor: '#f59e0b',
+        cancelButtonColor: '#6b7280',
+        reverseButtons: true,
+        customClass: { popup: 'swal-gaji-popup' }
+      });
+
+      if (!result.isConfirmed) return;
+
+      Utils.showLoading();
+      try {
+        const db = firebase.database();
+        await db.ref('penggajian/' + dateStr + '/' + gajiId).update({ paymentStatus: 'unpaid', status: 'unpaid', paidAt: null });
+        showToast('Status pembayaran dibatalkan', 'warning');
+        loadGajiData();
+      } catch (err) { showToast('Gagal membatalkan', 'error'); }
+      Utils.hideLoading();
+    };
+    window.hapusGaji = async function(gajiId, dateStr) {
+      const g = allGajiData.find(x => x.id === gajiId && x.dateStr === dateStr);
+      const nama = g ? g.namaKaryawan : 'Karyawan';
+      const periode = g ? ((g.periodeAwal || '-') + ' s/d ' + (g.periodeAkhir || '-')) : '-';
+
+      const result = await Swal.fire({
+        title: 'Hapus Data Gaji?',
+        html: `<div style="text-align:center">
+          <div style="width:64px;height:64px;background:linear-gradient(135deg,var(--danger),#f87171);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;color:white;font-size:1.75rem;">
+            <i class="fas fa-trash-alt"></i>
+          </div>
+          <p style="font-size:1rem;color:var(--text-primary);margin-bottom:.5rem;font-weight:600;">${escapeHtml(nama)}</p>
+          <p style="font-size:.85rem;color:var(--text-muted);margin-bottom:.5rem;">${periode}</p>
+          <p style="font-size:.85rem;color:var(--danger);font-weight:600;padding:.5rem;background:rgba(239,68,68,.08);border-radius:8px;">
+            <i class="fas fa-exclamation-triangle"></i> Data akan dihapus permanen dan tidak bisa dikembalikan!
+          </p>
+        </div>`,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-trash-alt"></i> Ya, Hapus Permanen',
+        cancelButtonText: 'Batal',
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6b7280',
+        reverseButtons: true,
+        customClass: { popup: 'swal-gaji-popup' }
+      });
+
+      if (!result.isConfirmed) return;
+
+      Utils.showLoading();
+      try {
+        const db = firebase.database();
+        await db.ref('penggajian/' + dateStr + '/' + gajiId).remove();
+        showToast('Data gaji dihapus', 'success');
+        loadGajiData();
+      } catch (err) { showToast('Gagal menghapus', 'error'); }
+      Utils.hideLoading();
+    };
+    window.showDetailGaji = function(gajiId, dateStr) {
+      const g = allGajiData.find(x => x.id === gajiId && x.dateStr === dateStr);
+      if (!g) { showToast('Data tidak ditemukan', 'error'); return; }
+
+      const status = g.paymentStatus || g.status || 'unpaid';
+      const isPaid = status === 'paid';
+      const badgeClass = isPaid ? 'badge-paid' : 'badge-unpaid';
+      const badgeText = isPaid ? 'Sudah Dibayar' : 'Belum Dibayar';
+      const tanggalBayar = g.paidAt ? formatDate(g.paidAt) : '-';
+      const tanggalInput = g.timestamp ? formatDate(g.timestamp) : '-';
+      const periode = g.displayPeriode || ((g.periodeAwal || '-') + ' s/d ' + (g.periodeAkhir || '-'));
+
+      // Hutang yang dipotong
+      let hutangHtml = '';
+      if (g.hutangDipotong && g.hutangDipotong.length > 0) {
+        hutangHtml = `<div style="margin-top:.75rem;padding:.75rem;background:rgba(239,68,68,.06);border-radius:8px;border:1px solid rgba(239,68,68,.15);">
+          <div style="font-weight:600;font-size:.85rem;color:var(--danger);margin-bottom:.35rem;"><i class="fas fa-hand-holding-usd"></i> Hutang Dipotong</div>
+          <div style="font-size:.85rem;color:var(--text-secondary);">Jumlah: ${formatRupiah(g.jumlahHutangDipotong || 0)}</div>
+          <div style="font-size:.8rem;color:var(--text-muted);">ID: ${g.hutangDipotong.join(', ')}</div>
+        </div>`;
+      }
+
+      // Gaji lalu yang dibayar via carry-over
+      let laluHtml = '';
+      if (g.gajiLaluDibayar && g.gajiLaluDibayar.length > 0) {
+        laluHtml = `<div style="margin-top:.75rem;padding:.75rem;background:rgba(245,158,11,.06);border-radius:8px;border:1px solid rgba(245,158,11,.15);">
+          <div style="font-weight:600;font-size:.85rem;color:var(--warning);margin-bottom:.35rem;"><i class="fas fa-history"></i> Gaji Bulan Lalu Dibayar</div>
+          <div style="font-size:.85rem;color:var(--text-secondary);">Jumlah: ${formatRupiah(g.jumlahGajiLalu || 0)}</div>
+          <div style="font-size:.8rem;color:var(--text-muted);">${g.gajiLaluDibayar.length} gaji lalu dilunasi</div>
+        </div>`;
+      }
+
+      const body = document.getElementById('detailGajiBody');
+      body.innerHTML = `
+        <div style="text-align:center;margin-bottom:1.25rem;">
+          <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--primary),var(--secondary));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;color:white;font-size:1.5rem;">
+            <i class="fas fa-user"></i>
+          </div>
+          <h2 style="font-size:1.15rem;font-weight:700;color:var(--text-primary);margin-bottom:.25rem;">${escapeHtml(g.namaKaryawan || '-')}</h2>
+          <span class="badge ${badgeClass}">${badgeText}${g.carryOver ? ' (Bln Lalu)' : ''}</span>
+        </div>
+
+        <div class="modal-summary" style="margin-bottom:1rem;">
+          <div class="modal-summary-row"><span><i class="fas fa-calendar-alt" style="color:var(--primary);margin-right:.35rem;"></i>Periode</span><span style="font-weight:600;">${periode}</span></div>
+          <div class="modal-summary-row"><span><i class="fas fa-calendar" style="color:var(--primary);margin-right:.35rem;"></i>Tanggal Input</span><span>${tanggalInput}</span></div>
+          <div class="modal-summary-row"><span><i class="fas fa-check-circle" style="color:var(--success);margin-right:.35rem;"></i>Tanggal Bayar</span><span>${tanggalBayar}</span></div>
+          <div class="modal-summary-row"><span><i class="fas fa-user-shield" style="color:var(--info);margin-right:.35rem;"></i>Input Oleh</span><span>${escapeHtml(g.userName || '-')}</span></div>
+        </div>
+
+        <div style="background:var(--bg-secondary);border-radius:12px;padding:1rem;margin-bottom:1rem;">
+          <div style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:.75rem;">Rincian Gaji</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px dashed var(--border-color);">
+            <span style="font-size:.9rem;color:var(--text-secondary);">Gaji Pokok</span>
+            <span style="font-weight:600;font-size:.9rem;color:var(--text-primary);">${formatRupiah(g.gajiPokok || 0)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px dashed var(--border-color);">
+            <span style="font-size:.9rem;color:var(--text-secondary);">Bonus / Lembur</span>
+            <span style="font-weight:600;font-size:.9rem;color:var(--success);">+ ${formatRupiah(g.bonus || 0)}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px dashed var(--border-color);">
+            <span style="font-size:.9rem;color:var(--text-secondary);">Potongan</span>
+            <span style="font-weight:600;font-size:.9rem;color:var(--danger);">- ${formatRupiah(g.potongan || 0)}</span>
+          </div>
+          ${g.jumlahGajiLalu > 0 ? `<div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px dashed var(--border-color);"><span style="font-size:.9rem;color:var(--text-secondary);">Gaji Bln Lalu</span><span style="font-weight:600;font-size:.9rem;color:var(--warning);">+ ${formatRupiah(g.jumlahGajiLalu || 0)}</span></div>` : ''}
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:.75rem 0 0;margin-top:.25rem;">
+            <span style="font-weight:700;font-size:1rem;color:var(--text-primary);">Total Diterima</span>
+            <span style="font-weight:800;font-size:1.1rem;color:var(--primary);">${formatRupiah(g.totalDiterima || 0)}</span>
+          </div>
+        </div>
+
+        ${hutangHtml}
+        ${laluHtml}
+
+        <div style="background:rgba(99,102,241,.05);border-radius:12px;padding:1rem;">
+          <div style="font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-bottom:.5rem;">Info Data</div>
+          <div style="font-size:.8rem;color:var(--text-muted);line-height:1.6;">
+            <div>ID Gaji: <span style="font-family:monospace;">${g.id}</span></div>
+            <div>Tanggal Data: ${g.dateStr}</div>
+            ${g.carryOverPaid ? '<div style="color:var(--warning);margin-top:.35rem;"><i class="fas fa-check-double"></i> Dibayar via carry-over gaji</div>' : ''}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('modalDetailGaji').classList.add('active');
+    };
+
+    window.closeModalDetailGaji = function() {
+      document.getElementById('modalDetailGaji').classList.remove('active');
+    };
+
+    /* ===== POPULATE DATALIST NAMA KARYAWAN ===== */
+    async function populateDatalistKaryawan() {
+      try {
+        const snapshot = await firebase.database().ref('penggajian').once('value');
+        const allData = snapshot.val() || {};
+        const namaSet = new Set();
+
+        // Kumpulkan semua nama dari data gaji yang pernah ada
+        Object.values(allData).forEach(dayData => {
+          Object.values(dayData).forEach(gaji => {
+            if (gaji.namaKaryawan) namaSet.add(gaji.namaKaryawan);
+          });
+        });
+
+        // Juga tambahkan nama dari debts yang type=piutang (karyawan hutang)
+        const debtSnap = await firebase.database().ref('debts').once('value');
+        const debts = debtSnap.val() || {};
+        Object.values(debts).forEach(d => {
+          if (d.name && d.type === 'piutang') namaSet.add(d.name);
+        });
+
+        // Render datalist
+        const datalist = document.getElementById('listKaryawan');
+        datalist.innerHTML = Array.from(namaSet).sort().map(n => 
+          `<option value="${escapeHtml(n)}">`
+        ).join('');
+      } catch (e) { console.error('Populate datalist error:', e); }
+    }
+
+    /* ===== LOAD HUTANG KARYAWAN + GAJI BULAN LALU ===== */
+    async function loadHutangKaryawan() {
+      const nama = document.getElementById('gajiNama').value.trim();
+      const hutangSection = document.getElementById('hutangPotonganSection');
+      const gajiLaluSection = document.getElementById('gajiBulanLaluSection');
+      const iconRefresh = document.getElementById('iconRefreshHutang');
+
+      if (!nama) { 
+        hutangSection.style.display = 'none'; 
+        gajiLaluSection.style.display = 'none';
+        return; 
+      }
+
+      if (iconRefresh) iconRefresh.classList.add('fa-spin');
+
+      try {
+        const db = firebase.database();
+
+        // ===== 1. LOAD HUTANG (dari debts) =====
+        const debtSnapshot = await db.ref('debts').once('value');
+        const allDebts = debtSnapshot.val() || {};
+        hutangKaryawanList = Object.entries(allDebts)
+          .filter(([id, d]) => d.name && d.name.toLowerCase().trim() === nama.toLowerCase().trim() && d.status === 'active' && d.type === 'piutang')
+          .map(([id, d]) => ({ id, ...d }));
+
+        if (hutangKaryawanList.length > 0) {
+          hutangSection.style.display = 'block';
+          let html = '';
+          hutangKaryawanList.forEach((h, idx) => {
+            const sisa = h.remaining || h.amount || 0;
+            html += `<div class="hutang-item-row" onclick="toggleHutangCheck(${idx})">
+              <input type="checkbox" id="hutangChk_${idx}" onchange="hitungPotonganDariHutang()" onclick="event.stopPropagation()">
+              <div class="hutang-item-info">
+                <div>${escapeHtml(h.note || 'Hutang #' + (idx+1))}</div>
+                <div>Sisa ${formatRupiah(sisa)} • Jatuh tempo ${h.dueDate || '-'}</div>
+              </div>
+              <div class="hutang-item-amount">${formatRupiah(sisa)}</div>
+            </div>`;
+          });
+          document.getElementById('hutangListContainer').innerHTML = html;
+        } else {
+          hutangSection.style.display = 'none';
+        }
+
+        // ===== 2. LOAD GAJI BULAN LALU BELUM DIBAYAR =====
+        const gajiSnapshot = await db.ref('penggajian').once('value');
+        const allGaji = gajiSnapshot.val() || {};
+        gajiBulanLaluList = [];
+
+        const now = new Date();
+        const currentYM = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+
+        Object.entries(allGaji).forEach(([dateStr, dayData]) => {
+          // Lewati bulan ini — kita cari bulan-bulan SEBELUMNYA
+          if (dateStr.startsWith(currentYM)) return;
+
+          Object.entries(dayData).forEach(([gid, gaji]) => {
+            const status = gaji.paymentStatus || gaji.status || 'unpaid';
+            // Cari yang belum dibayar DAN nama sama
+            if (status === 'unpaid' && gaji.namaKaryawan && 
+                gaji.namaKaryawan.toLowerCase().trim() === nama.toLowerCase().trim()) {
+              gajiBulanLaluList.push({ id: gid, dateStr: dateStr, ...gaji });
+            }
+          });
+        });
+
+        if (gajiBulanLaluList.length > 0) {
+          gajiLaluSection.style.display = 'block';
+          let html = '';
+          gajiBulanLaluList.forEach((g, idx) => {
+            const bulan = g.dateStr ? g.dateStr.substring(0, 7) : '-';
+            html += `<div class="gaji-lalu-row" onclick="toggleGajiLaluCheck(${idx})">
+              <input type="checkbox" id="gajiLaluChk_${idx}" onchange="hitungGajiLalu()" onclick="event.stopPropagation()">
+              <div class="gaji-lalu-info">
+                <div>${escapeHtml(g.namaKaryawan)} • ${getBulanLabel(bulan.split('-')[1])} ${bulan.split('-')[0]}</div>
+                <div>Periode: ${g.periodeAwal || '-'} s/d ${g.periodeAkhir || '-'}</div>
+              </div>
+              <div class="gaji-lalu-amount">${formatRupiah(g.totalDiterima || 0)}</div>
+            </div>`;
+          });
+          document.getElementById('gajiBulanLaluContainer').innerHTML = html;
+        } else {
+          gajiLaluSection.style.display = 'none';
+        }
+
+      } catch (e) { console.error('Load hutang/gaji lalu error:', e); }
+
+      if (iconRefresh) iconRefresh.classList.remove('fa-spin');
+    }
+
+    window.toggleHutangCheck = function(idx) {
+      const cb = document.getElementById('hutangChk_' + idx);
+      if (cb) { cb.checked = !cb.checked; hitungPotonganDariHutang(); }
+    };
+
+    window.hitungPotonganDariHutang = function() {
+      let total = 0; selectedHutangIds = [];
+      hutangKaryawanList.forEach((h, idx) => {
+        const cb = document.getElementById('hutangChk_' + idx);
+        if (cb && cb.checked) { total += (h.remaining || h.amount || 0); selectedHutangIds.push(h.id); }
+      });
+      document.getElementById('gajiPotongan').value = total;
+      updateGajiPreview();
+    };
+
+    // ===== GAJI BULAN LALU FUNCTIONS =====
+    window.toggleGajiLaluCheck = function(idx) {
+      const cb = document.getElementById('gajiLaluChk_' + idx);
+      if (cb) { cb.checked = !cb.checked; hitungGajiLalu(); }
+    };
+
+    window.hitungGajiLalu = function() {
+      selectedGajiLaluIds = [];
+      let totalLalu = 0;
+      gajiBulanLaluList.forEach((g, idx) => {
+        const cb = document.getElementById('gajiLaluChk_' + idx);
+        if (cb && cb.checked) { 
+          selectedGajiLaluIds.push({ id: g.id, dateStr: g.dateStr, amount: g.totalDiterima || 0 });
+          totalLalu += (g.totalDiterima || 0);
+        }
+      });
+      // Update preview: tambahkan info total gaji lalu yang dicentang
+      updateGajiPreview();
+    };
+
+    /* ===== HELPERS ===== */
+    function resetForm() {
+      hutangKaryawanList = [];
+      selectedHutangIds = [];
+      gajiBulanLaluList = [];
+      selectedGajiLaluIds = [];
+      document.getElementById('hutangPotonganSection').style.display = 'none';
+      document.getElementById('hutangListContainer').innerHTML = '';
+      document.getElementById('gajiBulanLaluSection').style.display = 'none';
+      document.getElementById('gajiBulanLaluContainer').innerHTML = '';
+      document.getElementById('gajiNama').value = '';
+      document.getElementById('gajiPokok').value = '';
+      document.getElementById('gajiBonus').value = '';
+      document.getElementById('gajiPotongan').value = '';
+      document.getElementById('gajiStatus').value = 'unpaid';
+      const cbBulanLalu = document.getElementById('checkBulanLalu');
+      if (cbBulanLalu) cbBulanLalu.checked = false;
+      updateGajiPreview();
+    }
+    function getBulanLabel(bulan) {
+      const labels = {'01':'Januari','02':'Februari','03':'Maret','04':'April','05':'Mei','06':'Juni','07':'Juli','08':'Agustus','09':'September','10':'Oktober','11':'November','12':'Desember'};
+      return labels[bulan] || bulan;
+    }
+    function formatRupiah(num) {
+      if (typeof num !== 'number') num = parseInt(num) || 0;
+      return 'Rp ' + num.toLocaleString('id-ID');
+    }
+    function formatDateInput(date) {
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, '0');
+      const d = String(date.getDate()).padStart(2, '0');
+      return y + '-' + m + '-' + d;
+    }
+    function formatDate(ts) {
+      if (!ts) return '-';
+      const d = new Date(ts);
+      return d.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+    }
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    function showToast(message, type) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'toast ' + (type || 'info');
+      let icon = 'info-circle';
+      if (type === 'success') icon = 'check-circle';
+      if (type === 'error') icon = 'exclamation-circle';
+      if (type === 'warning') icon = 'exclamation-triangle';
+      toast.innerHTML = '<i class="fas fa-' + icon + '"></i><span>' + message + '</span>';
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    /* ===== FIX SCOPE: attach local functions to window ===== */
+    window.loadHutangKaryawan = loadHutangKaryawan;
+    window.toggleInputBulanLalu = toggleInputBulanLalu;
+
+    /* ===== INIT ===== */
+    loadGajiData();
+
+    /* Fix links (identik dashboard) */
+    document.querySelectorAll('a').forEach(link => {
+      link.removeAttribute('target');
+      link.removeAttribute('rel');
+    });
+    const observer = new MutationObserver(() => {
+      document.querySelectorAll('a').forEach(link => { link.removeAttribute('target'); link.removeAttribute('rel'); });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+  </script>
+</body>
+</html>
